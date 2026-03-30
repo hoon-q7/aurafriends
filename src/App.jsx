@@ -9,7 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // 🧙 사주 엔진 v8.0 (Supabase hanja 연동 완료)
 const SOLAR_TERM = [[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,7],[9,8],[10,8],[11,7]];
-const STEMS = ["甲","乙","丙","丁","戊","己","庚","신","壬","癸"];
+const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const STEMS_KO = ["갑","을","병","정","무","기","경","신","임","계"];
 const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 const BRANCHES_KO = ["자","축","인","묘","진","사","오","미","신","유","술","해"];
@@ -97,7 +97,21 @@ function _buildCharData() {
       const env = night ? _BN[b] : _BD[b];
       const name = `${env} ${ko}`;
       const rationale = `일주 ${STEMS[s]}${BRANCHES[b]}(${STEMS[s]}=${_SSTM_KO[s]})`;
-      out[idx] = { name, icon, element:elem, color, bg, rationale, luckTrend, caution, keywords };
+      out[idx] = { 
+        name, 
+        icon, 
+        element:elem, 
+        color, 
+        bg, 
+        rationale, 
+        luckTrend, 
+        caution, 
+        keywords,
+        lucky: {
+          colors: [color, "#ffffff"],
+          numbers: [3, 7, 8, 9, 11]
+        }
+      };
     }
   }
   return out;
