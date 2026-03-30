@@ -46,27 +46,44 @@ return { ey, em, ed, adjH: Math.floor(adj/60) % 24 };
 function calcSaju(year, month, day, hour=12, minute=0, timeUnknown=false) {
 let ey=year, em=month, ed=day, adjH=null;
 if (!timeUnknown) {
-const e = getEffective(year, month, day, hour, minute);
-[ey,em,ed,adjH] = [e.ey, e.em, e.ed, e.adjH];
-}
-const effY   = (em===1 || (em===2 && ed<4)) ? ey--1 : ey;
-const yStem  = ((effy--4)%10+100)%10, yBranch = ((effy--4)%12+120)%12;
-const mIdx   = getMonthIdx(ey,em,ed);
-const mStem  = ((yStem%5)*2+2+mIdx)%10, mBranch = (mIdx+2)%12;
-const jdn    = toJDN(ey,em,ed);
-//  offset +49 (MYPIE 8/8 검증, 10만건 오류율 0%)
-const dStem  = (jdn+49)%10, dBranch = (jdn+49)%12;
-const dayGZ  = (jdn+49)%60;
-let hStem=null, hBranch=null;
-if (!timeUnknown && adjH !== null) {
-hBranch = adjH===23 ? 0 : Math.floor((adjH+1)/2)%12;
-hStem   = ((dStem%5)*2+hBranch)%10;
-}
-// 120가지 인덱스: dayGZ(0~59) × 2 + 낮/밤(0/1)
-const charIdx = dayGZ * 2 + (hBranch !== null ? (hBranch >= 6 ? 1 : 0) : 0);
-return { yStem, yBranch, mStem, mBranch, dStem, dBranch, hStem, hBranch, dayGZ, charIdx, eff:[ey,em,ed] };
-}
+const e = getEffective(year, month, day, hour, 
+    [ey, em, ed, adjH] = [e.ey, e.em, e.ed, e.adjH];
+  }
 
+  // 1. ey--1 수정 -> ey - 1
+  const effY = (em === 1 || (em === 2 && ed < 4)) ? ey - 1 : ey;
+
+  // 2. effy(소문자) -> effY(대문자)로 통일
+  // 3. effy--4 수정 -> (effY - 4)
+  // 4. %10+100 -> %10+10 (음수 방지 로직 최적화)
+  const yStem = ((effY - 4) % 10 + 10) % 10;
+  const yBranch = ((effY - 4) % 12 + 12) % 12;
+
+  const mIdx = getMonthIdx(ey, em, ed);
+  const mStem = ((yStem % 5) * 2 + 2 + mIdx) % 10;
+  const mBranch = (mIdx + 2) % 12;
+
+  const jdn = toJDN(ey, em, ed);
+  
+  // offset +49 (표준 기호 - 사용)
+  const dStem = (jdn + 49) % 10;
+  const dBranch = (jdn + 49) % 12;
+  const dayGZ = (jdn + 49) % 60;
+
+  let hStem = null, hBranch = null;
+  if (!timeUnknown && adjH !== null) {
+    hBranch = adjH === 23 ? 0 : Math.floor((adjH + 1) / 2) % 12;
+    hStem = ((dStem % 5) * 2 + hBranch) % 10;
+  }
+
+  const charIdx = dayGZ * 2 + (hBranch !== null ? (hBranch >= 6 ? 1 : 0) : 0);
+  
+  return { 
+    yStem, yBranch, mStem, mBranch, dStem, dBranch, 
+    hStem, hBranch, dayGZ, charIdx, 
+    eff: [ey, em, ed] 
+  };
+}
 // ════════════════════════════════════════════════════════
 //  120가지 캐릭터 — 60일주 × 낮(0~5시지)/밤(6~11시지)
 //  인덱스 = dayGZ * 2 + (hBranch>=6 ? 1 : 0)
