@@ -382,15 +382,10 @@ function ElementRadar({profile,dateStr}) {
   useEffect(()=>{const t=setTimeout(()=>setVis(true),100);return()=>clearTimeout(t);},[]);
   return(
     <svg width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
-      {[.25,.5,.75,1].map((f,gi) => (
-        <polygon 
-          key={gi} 
-          points={ang.map((a) => pt(a, mR * f)).map(([x,y]) => `${x},${y}`).join(" ")} 
-          fill="none" 
-          stroke="#f0f0f0" 
-          strokeWidth="1"
-        />
-      ))}
+      {[.25,.5,.75,1].map((f,gi) => {
+        const pts = ang.map((a) => pt(a, mR * f)).map(([x,y]) => `${x},${y}`).join(" ");
+        return <polygon key={gi} points={pts} fill="none" stroke="#f0f0f0" strokeWidth="1" />;
+      })}
       {ang.map((a,i)=>{const[x,y]=pt(a,mR);return<line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#f0f0f0" strokeWidth="1"/>;})}
       <polygon points={dpts.map(([x,y])=>`${x},${y}`).join(" ")} fill={`${char.color}25`} stroke={char.color} strokeWidth="2.5" strokeLinejoin="round" style={{opacity:vis?1:0,transition:"opacity .8s"}}/>
       {dpts.map(([x,y],i)=><circle key={i} cx={x} cy={y} r="4" fill={char.color} style={{opacity:vis?1:0,transition:`opacity .4s ${.3+i*.06}s`}}/>)}
