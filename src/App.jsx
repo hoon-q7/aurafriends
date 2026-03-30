@@ -47,25 +47,25 @@ function getEffective(year, month, day, hour, minute) {
 }
 
 function calcSaju(year, month, day, hour=12, minute=0, timeUnknown=false) {
-    let ey=year, em=month, ed=day, adjH=null;
-    if (!timeUnknown) {
-        const e = getEffective(year, month, day, hour, minute);
-        [ey,em,ed,adjH] = [e.ey, e.em, e.ed, e.adjH];
-    }
-    const effY = (em===1 || (em===2 && ed<4)) ? ey-1 : ey;
-    const yStem = ((effY-4)%10+100)%10, yBranch = ((effY-4)%12+120)%12;
-    const mIdx = getMonthIdx(ey,em,ed);
-    const mStem = ((yStem%5)*2+2+mIdx)%10, mBranch = (mIdx+2)%12;
-    const jdn = toJDN(ey,em,ed);
-    const dStem = (jdn+49)%10, dBranch = (jdn+49)%12;
-    const dayGZ = (jdn+49)%60;
-    let hStem=null, hBranch=null;
-    if (!timeUnknown && adjH !== null) {
-        hBranch = adjH===23 ? 0 : Math.floor((adjH+1)/2)%12;
-        hStem = ((dStem%5)*2+hBranch)%10;
-    }
-    const charIdx = dayGZ * 2 + (hBranch !== null ? (hBranch >= 6 ? 1 : 0) : 0);
-    return { yStem, yBranch, mStem, mBranch, dStem, dBranch, hStem, hBranch, dayGZ, charIdx };
+  let ey=year, em=month, ed=day, adjH=null;
+  if (!timeUnknown) {
+    const e = getEffective(year, month, day, hour, minute);
+    [ey,em,ed,adjH] = [e.ey, e.em, e.ed, e.adjH];
+  }
+  const effY = (em===1 || (em===2 && ed<4)) ? ey-1 : ey;
+  const yStem = ((effY-4)%10+100)%10, yBranch = ((effY-4)%12+120)%12;
+  const mIdx = getMonthIdx(ey,em,ed);
+  const mStem = ((yStem%5)*2+2+mIdx)%10, mBranch = (mIdx+2)%12;
+  const jdn = toJDN(ey,em,ed);
+  const dStem = (jdn+49)%10, dBranch = (jdn+49)%12;
+  const dayGZ = (jdn+49)%60;
+  let hStem=null, hBranch=null;
+  if (!timeUnknown && adjH !== null) {
+    hBranch = adjH===23 ? 0 : Math.floor((adjH+1)/2)%12;
+    hStem = ((dStem%5)*2+hBranch)%10;
+  }
+  const charIdx = dayGZ * 2 + (hBranch !== null ? (hBranch >= 6 ? 1 : 0) : 0);
+  return { yStem, yBranch, mStem, mBranch, dStem, dBranch, hStem, hBranch, dayGZ, charIdx };
 }
 
 const ELEM_NAME = ["목(木)","화(火)","토(土)","금(金)","수(水)"];
@@ -73,23 +73,21 @@ const ELEM_COLOR = ["#2d6a4f","#bf6100","#9a7100","#546e7a","#1565c0"];
 const SHENG = [1,2,3,4,0];
 const KE = [2,3,4,0,1];
 
-// ✅ _SA 배열 문법 완전 수정 (Vercel 빌드 에러 원인 해결)
 const _SA = [
-    ["곰돌이","🐻",0,"#0F5132","#F0FFF4","강한한 목 (木)의 기운",["우직함","신뢰","창의"],"40대 이후 명예와 재물이 쌓이는 대기만성형.","고집보다 유연함이 기회를 부릅니다."],
-    ["토끼","🐰",0,"#00695C","#F5FFFF","유연한 목 (木)의 기운",["친화력","감수성","적응"],"인복이 강하여 협력자를 통해 전성기를 맞이합니다.","결단력이 필요한 순간엔 침착함이 핵심입니다."],
-    ["사막여우","🦊",1,"#BF6100","#FFF5F0","열정적인 화 (火)의 기운",["열정","창의성","카리스마"],"20대 후반 아이디어로 자수성가할 운명.","열정 과잉으로 번아웃이 올 수 있으니 휴식이 필수입니다."],
-    ["고양이","🐱",1,"#C62828","#FFF0F0","통찰력 있는 화 (火)의 기운",["직관","치유","리더십"],"40대 이후 학문적 명예와 지도자 운세.","감정 기복을 다스려야 행운을 지킵니다."],
-    ["강아지","🐶",2,"#827717","#FFFDF0","견고한 토 (土)의 기운",["신뢰","안정","성실"],"중년에 안정적인 자산 운과 평온을 누림.","새로운 변화에 마음을 열어야 기회가 옵니다."],
-    ["돼지","🐷",2,"#6D4C41","#FAF6F0","풍요로운 토 (土)의 기운",["풍요","포용","복록"],"평생 먹을 복과 재물운이 끊이지 않는 복록.","실속을 챙기는 지혜가 필요합니다."],
-    ["늑대","🐺",3,"#455A64","#F8F8F8","결단력 있는 금 (金)의 기운",["결단력","정의감","전문성"],"전문직 분야에서 큰 두각을 나타내며 대운이 옵니다.","부드러운 말투가 행운의 통로입니다."],
-    ["햄스터","🐹",3,"#1565C0","#F5F5FF","명석한 금 (金)의 기운",["지혜","분석력","전략"],"명석한 지혜가 재물이 되는 운명.","자만하면 큰 손해가 오니 겸손이 필수입니다."],
-    ["고래","🐳",4,"#1976D2","#F0FAFF","넓은 수 (水)의 기운",["통찰","비전","포용"],"해외운·유통운이 강해 넓은 무대에서 성공.","빠른 실행력이 운을 보강합니다."],
-    ["병아리","🐥",4,"#303F9F","#F2F8FF","많은 수 (Water)의 기운",["영감","순수","소통"],"예술·교육 분야에서 큰 성취를 이룹니다.","금전 거래·계약 시 꼼꼼해야 합니다."]
+  ["곰돌이","🐻",0,"#0F5132","#F0FFF4","강한한 목 (木)의 기운",["우직함","신뢰","창의"],"40대 이후 명예와 재물이 쌓이는 대기만성형.","고집보다 유연함이 기회를 부릅니다."],
+  ["토끼","🐰",0,"#00695C","#F5FFFF","유연한 목 (木)의 기운",["친화력","감수성","적응"],"인복이 강하여 협력자를 통해 전성기를 맞이합니다.","결단력이 필요한 순간엔 침착함이 핵심입니다."],
+  ["사막여우","🦊",1,"#BF6100","#FFF5F0","열정적인 화 (火)의 기운",["열정","창의성","카리스마"],"20대 후반 아이디어로 자수성가할 운명.","열정 과잉으로 번아웃이 올 수 있으니 휴식이 필수입니다."],
+  ["고양이","🐱",1,"#C62828","#FFF0F0","통찰력 있는 화 (火)의 기운",["직관","치유","리더십"],"40대 이후 학문적 명예와 지도자 운세.","감정 기복을 다스려야 행운을 지킵니다."],
+  ["강아지","🐶",2,"#827717","#FFFDF0","견고한 토 (土)의 기운",["신뢰","안정","성실"],"중년에 안정적인 자산 운과 평온을 누림.","새로운 변화에 마음을 열어야 기회가 옵니다."],
+  ["돼지","🐷",2,"#6D4C41","#FAF6F0","풍요로운 토 (土)의 기운",["풍요","포용","복록"],"평생 먹을 복과 재물운이 끊이지 않는 복록.","실속을 챙기는 지혜가 필요합니다."],
+  ["늑대","🐺",3,"#455A64","#F8F8F8","결단력 있는 금 (金)의 기운",["결단력","정의감","전문성"],"전문직 분야에서 큰 두각을 나타내며 대운이 옵니다.","부드러운 말투가 행운의 통로입니다."],
+  ["햄스터","🐹",3,"#1565C0","#F5F5FF","명석한 금 (金)의 기운",["지혜","분석력","전략"],"명석한 지혜가 재물이 되는 운명.","자만하면 큰 손해가 오니 겸손이 필수입니다."],
+  ["고래","🐳",4,"#1976D2","#F0FAFF","넓은 수 (水)의 기운",["통찰","비전","포용"],"해외운·유통운이 강해 넓은 무대에서 성공.","빠른 실행력이 운을 보강합니다."],
+  ["병아리","🐥",4,"#303F9F","#F2F8FF","많은 수 (Water)의 기운",["영감","순수","소통"],"예술·교육 분야에서 큰 성취를 이룹니다.","금전 거래·계약 시 꼼꼼해야 합니다."]
 ];
 
 const _BD = ["새벽별의", "대지의", "새싹의", "달빛", "황금", "태양의", "불꽃", "들판의", "강철", "보석", "한밤의", "고요한 대지", "숲속의", "안개 속", "별빛", "노을 속", "촛불", "밤 들판의", "서리", "눈꽃"];
 const _BN = ["한밤의", "고요한 대지", "숲속의", "안개 속", "별빛", "노을 속", "촛불", "밤 들판의", "서리", "눈꽃", "새벽별의", "대지의", "새싹의", "달빛", "황금", "태양의", "불꽃", "들판의", "강철", "보석"];
-const _BSTM_KO = ["수 (水)", "토 (土)", "목 (木)", "목 (木)", "토 (土)", "화 (火)", "화 (火)", "토 (土)", "금 (金)", "금 (金)", "수 (水)", "토 (土)", "목 (木)", "목 (木)", "토 (土)", "화 (火)", "화 (火)", "토 (土)", "금 (金)", "금 (金)"];
 const _SSTM_KO = ["목 (木)", "목 (木)", "화 (火)", "화 (火)", "토 (土)", "토 (土)", "금 (金)", "금 (金)", "수 (水)", "수 (水)"];
 
 function _buildCharData() {
@@ -102,14 +100,13 @@ function _buildCharData() {
       const env = night ? _BN[b] : _BD[b];
       const name = `${env} ${ko}`;
       const rationale = `일주 ${STEMS[s]}${BRANCHES[b]}(${STEMS[s]}=${_SSTM_KO[s]})`;
-      out[idx] = { name, icon, element:elem, color, bg, rationale, luckTrend, caution, keywords, lucky: luckTrend };
+      out[idx] = { name, icon, element:elem, color, bg, rationale, luckTrend, caution, keywords };
     }
   }
   return out;
 }
 const CHAR_DATA = _buildCharData();
 
-// 레벨, 사자성어, 궁합
 const LEVELS = [
   {min:0, max:2, rank:"Lv.1",name:"잠든 알", icon:"🥚"},
   {min:3, max:6, rank:"Lv.2",name:"새싹 아우라", icon:"🌱"},
@@ -287,9 +284,123 @@ const MS = Array.from({length:12},(_,i)=>i+1);
 const HS = Array.from({length:24},(_,i)=>i);
 const MI = Array.from({length:60},(_,i)=>i);
 
-const HANJA_DICT = { /* ... (원본 그대로 유지, 생략 없이 전체 포함) ... */ };
-const HANJA_STROKES = { /* ... (원본 그대로 유지) ... */ };
-const NAME_FORTUNE = [ /* ... (원본 그대로 유지) ... */ ];
+const HANJA_DICT = {
+  "이":["李","怡","以","異","利","珥"],"김":["金","琴","錦"],"박":["朴","璞","博"],
+  "최":["崔","最"],"정":["鄭","貞","正","廷","情","靜","晶","庭"],
+  "강":["姜","康","剛","江","鋼"],"윤":["尹","潤","允","胤","玧"],
+  "장":["張","章","璋","莊","長","壯"],"임":["林","任","琳","壬","臨"],
+  "한":["韓","漢","翰","閑"],"오":["吳","旿","五","梧"],
+  "서":["徐","瑞","舒","書","西"],"신":["申","信","晨","辛","愼"],
+  "권":["權","卷","勸"],"황":["黃","晃","煌","凰","璜"],
+  "안":["安","晏","岸"],"송":["宋","松","頌","淞"],
+  "홍":["洪","弘","鴻","紅"],"고":["高","皐","古","固","顧"],
+  "문":["文","汶","門","聞"],"양":["楊","梁","陽","良","養"],
+  "손":["孫","遜","巽"],"배":["裵","培","倍"],
+  "조":["趙","曺","祖","助"],"허":["許","虛"],
+  "유":["劉","裕","柔","惟","維","愈","儒"],"남":["南","男","藍"],
+  "심":["沈","心","深","審"],"노":["盧","路","魯","努"],
+  "하":["河","夏","賀","荷","霞","廈"],"전":["田","全","傳","典","錢","展"],
+  "성":["成","誠","盛","性","星"],"차":["車","次","且"],
+  "우":["禹","宇","佑","雨","右"],"구":["具","龜","丘","九"],
+  "나":["羅","那","娜","奈"],"진":["陳","珍","眞","振","鎭","晉"],
+  "지":["池","智","芝","之","志","枝"],"원":["元","源","圓","苑"],
+  "천":["千","天","川","泉"],"방":["方","邦","芳","房"],
+  "공":["孔","恭","功"],"백":["白","伯","柏","百"],
+  "류":["柳","流","琉"],
+  "준":["俊","峻","準","濬","浚","晙","埈","竣"],
+  "현":["賢","炫","玄","鉉","弦","晛","顯","絢"],
+  "민":["旻","珉","敏","旼","珢","民"],"영":["英","瑛","永","泳","映","煐","瑩"],
+  "수":["秀","洙","修","壽","琇","穗"],"은":["恩","銀","殷","誾","垠"],
+  "혜":["惠","慧","蕙","彗","兮"],"경":["景","璟","敬","庚","京","卿"],
+  "연":["妍","娟","燕","涓","沇","漣","延"],"세":["世","洗","細","歲"],
+  "재":["在","才","宰","載","梓","哉"],"인":["仁","印","寅","忍","麟"],
+  "동":["東","同","棟","動","冬","彤"],"호":["浩","皓","晧","昊","虎","護","豪"],
+  "기":["基","起","期","琦","璣","旗"],"상":["相","祥","尙","賞","詳","象"],
+  "태":["泰","太","台","兌"],"환":["煥","桓","歡","奐","渙","宦"],
+  "찬":["燦","贊","粲","璨","瓚"],"용":["龍","勇","容","鎔","溶"],
+  "철":["哲","澈","徹","喆","鐵"],"석":["碩","錫","石","晳","奭"],
+  "훈":["勳","薰","訓","焄"],"병":["炳","秉","昺","丙","柄"],
+  "아":["雅","娥","亞","芽","牙"],"소":["昭","笑","素","蘇","韶","召"],
+  "미":["美","眉","彌","媚"],"채":["彩","埰","采","菜","蔡"],
+  "도":["道","燾","度","渡","圖"],"형":["炯","瀅","馨","亨","衡"],
+  "보":["寶","輔","普","甫","步"],"빈":["彬","斌","玭","賓","嬪"],
+  "덕":["德","悳"],"희":["熙","姬","喜","曦","羲","希"],
+  "선":["善","璿","宣","仙","嬋","先","鮮"],"해":["海","偕","解","亥"],
+  "가":["佳","嘉","珈","伽","加","可"],"사":["史","仕","思","斯","沙"],
+  "자":["子","慈","紫","自","姿"],"야":["野","夜","耶"],
+  "의":["義","毅","儀","意","宜"],"시":["詩","時","始","施","視"],
+  "비":["飛","妃","丕","備","悲"],"추":["秋","楸","樞","追"],
+  "무":["武","茂","撫","務"],"주":["珠","周","宙","舟","株","柱","奏"],
+  "두":["斗","杜","頭","豆"],"모":["慕","謀","毛","茅","模"],
+  "린":["麟","璘","燐","潾"],"록":["祿","錄","綠","鹿"],
+  "봉":["鳳","奉","峰","烽"],"춘":["春","椿"],
+  "래":["來","萊","徠"],"로":["路","露","爐"],
+  "유":["由","柔","唯","遊","裕"],"나":["娜","那","奈","羅"],
+  "하":["荷","夏","河","賀","霞"],
+};
+
+const HANJA_STROKES = {
+  "李":7,"怡":9,"以":5,"異":11,"利":7,"珥":10,"金":8,"琴":13,"錦":16,
+  "朴":6,"璞":16,"博":12,"崔":11,"最":12,"鄭":14,"貞":9,"正":5,"廷":7,
+  "情":11,"靜":16,"晶":12,"庭":10,"姜":9,"康":11,"剛":10,"江":6,"鋼":16,
+  "尹":4,"潤":15,"允":4,"胤":9,"玧":8,"張":11,"章":11,"璋":15,"莊":9,
+  "長":8,"壯":6,"林":8,"任":6,"琳":13,"壬":4,"臨":17,"韓":17,"漢":13,
+  "翰":16,"閑":12,"吳":7,"旿":8,"五":4,"梧":11,"徐":10,"瑞":13,"舒":12,
+  "書":10,"西":6,"申":5,"信":9,"晨":11,"辛":7,"愼":13,"權":22,"卷":8,
+  "勸":20,"黃":12,"晃":10,"煌":13,"凰":11,"璜":17,"安":6,"晏":10,"岸":8,
+  "宋":7,"松":8,"頌":13,"淞":11,"洪":9,"弘":5,"鴻":17,"紅":9,"高":10,
+  "皐":11,"古":5,"固":8,"顧":21,"文":4,"汶":7,"門":8,"聞":14,"楊":13,
+  "梁":11,"陽":12,"良":7,"養":15,"孫":10,"遜":13,"巽":12,"裵":14,"培":11,
+  "倍":10,"趙":14,"曺":11,"祖":9,"助":7,"許":11,"虛":12,"劉":15,"裕":12,
+  "柔":9,"惟":11,"維":14,"愈":13,"儒":16,"南":9,"男":7,"藍":17,"沈":8,
+  "心":4,"深":11,"審":15,"盧":20,"路":13,"魯":15,"努":7,"河":8,"夏":10,
+  "賀":12,"荷":12,"霞":17,"廈":13,"田":5,"全":6,"傳":13,"典":8,"錢":16,
+  "展":10,"成":6,"誠":13,"盛":12,"性":8,"星":9,"車":7,"次":6,"且":5,
+  "禹":9,"宇":6,"佑":7,"雨":8,"右":5,"具":8,"龜":16,"丘":5,"九":2,
+  "羅":20,"那":7,"娜":10,"奈":8,"陳":10,"珍":9,"眞":10,"振":10,"鎭":18,
+  "晉":10,"池":6,"智":12,"芝":6,"之":4,"志":7,"枝":8,"元":4,"源":13,
+  "圓":13,"苑":8,"千":3,"天":4,"川":3,"泉":9,"方":4,"邦":7,"芳":7,
+  "房":8,"孔":4,"恭":10,"功":5,"白":5,"伯":7,"柏":9,"百":6,"柳":9,
+  "流":10,"琉":11,"俊":9,"峻":10,"準":13,"濬":17,"浚":10,"晙":10,"埈":11,
+  "竣":12,"賢":16,"炫":9,"玄":5,"鉉":13,"弦":8,"晛":11,"顯":23,"絢":12,
+  "旻":8,"珉":9,"敏":11,"旼":8,"珢":10,"民":5,"英":8,"瑛":14,"永":5,
+  "泳":8,"映":9,"煐":13,"瑩":17,"秀":7,"洙":9,"修":10,"壽":14,"琇":12,
+  "穗":17,"恩":10,"銀":14,"殷":10,"誾":16,"垠":9,"惠":12,"慧":15,"蕙":18,
+  "彗":11,"兮":6,"景":12,"璟":17,"敬":13,"庚":8,"京":8,"卿":12,"鏡":19,
+  "妍":9,"娟":10,"燕":16,"涓":10,"沇":7,"漣":14,"延":7,"世":5,"洗":9,
+  "細":11,"歲":17,"在":6,"才":3,"宰":10,"載":13,"梓":11,"哉":9,"仁":4,
+  "印":6,"寅":11,"忍":7,"麟":23,"東":8,"同":6,"棟":12,"動":11,"冬":5,
+  "彤":7,"浩":10,"皓":12,"晧":11,"昊":8,"虎":8,"護":21,"豪":14,"基":11,
+  "起":10,"期":12,"琦":12,"璣":17,"旗":14,"相":9,"祥":11,"尙":8,"賞":15,
+  "詳":13,"象":12,"泰":10,"太":4,"台":5,"兌":7,"煥":13,"桓":10,"歡":22,
+  "奐":9,"渙":12,"宦":9,"燦":17,"贊":19,"粲":13,"璨":19,"瓚":22,"龍":16,
+  "勇":9,"容":10,"鎔":18,"溶":13,"哲":10,"澈":16,"徹":15,"喆":12,"鐵":21,
+  "碩":14,"錫":16,"石":5,"晳":12,"奭":10,"勳":16,"薰":17,"訓":10,"焄":12,
+  "炳":9,"秉":8,"昺":9,"丙":5,"柄":9,"雅":13,"娥":10,"亞":8,"芽":8,
+  "牙":4,"昭":9,"笑":10,"素":10,"蘇":20,"韶":14,"召":5,"美":9,"眉":9,
+  "彌":18,"媚":12,"彩":11,"埰":11,"采":8,"菜":11,"蔡":14,"道":13,"燾":17,
+  "度":9,"渡":12,"圖":14,"炯":9,"瀅":17,"馨":20,"亨":7,"衡":16,"寶":20,
+  "輔":14,"普":12,"甫":7,"步":7,"彬":11,"斌":12,"玭":9,"賓":14,"嬪":17,
+  "德":15,"悳":15,"熙":16,"姬":10,"喜":12,"曦":20,"羲":16,"希":7,"善":12,
+  "璿":18,"宣":9,"仙":5,"嬋":15,"先":6,"鮮":17,"海":10,"偕":11,"解":13,
+  "亥":6,"佳":8,"嘉":14,"珈":9,"伽":7,"加":5,"可":5,"史":5,"仕":5,
+  "思":9,"斯":12,"沙":7,"子":3,"慈":13,"紫":12,"自":6,"姿":9,"野":11,
+  "夜":8,"耶":8,"義":13,"毅":15,"儀":15,"意":13,"宜":8,"詩":13,"時":10,
+  "始":8,"施":9,"視":12,"飛":9,"妃":6,"丕":5,"備":12,"悲":12,"秋":9,
+  "楸":13,"樞":15,"追":10,"武":8,"茂":8,"撫":15,"務":11,"珠":10,"周":8,
+  "宙":8,"舟":6,"株":10,"柱":9,"奏":9,"斗":4,"杜":7,"頭":16,"豆":7,
+  "慕":15,"謀":16,"毛":4,"茅":8,"模":14,"麟":23,"璘":17,"燐":16,"祿":13,
+  "錄":16,"綠":14,"鹿":11,"鳳":14,"奉":8,"峰":10,"烽":11,"春":9,"椿":13,
+  "來":8,"萊":11,"徠":11,"露":21,"爐":20,"由":5,"唯":11,"遊":13,
+};
+
+const NAME_FORTUNE = [
+  {elem:0,icon:"🌳",title:"목(木) 기운의 이름",desc:"성장과 창의의 기운이 깃든 이름. 예술적 재능"},
+  {elem:1,icon:"🔥",title:"화(火) 기운의 이름",desc:"열정과 카리스마의 기운. 강한 존재감으로 주목"},
+  {elem:2,icon:"⛰️",title:"토(土) 기운의 이름",desc:"신뢰와 안정의 기운. 꾸준한 노력으로 탄탄한 기반"},
+  {elem:3,icon:"⚔️",title:"금(金) 기운의 이름",desc:"결단력과 지혜의 기운. 명석한 판단력으로 어필"},
+  {elem:4,icon:"💧",title:"수(水) 기운의 이름",desc:"유연함과 통찰의 기운. 흘러가는 물처럼 어떤 상황도"},
+];
 
 function getStrokeElement(total) {
   const r = total % 10;
@@ -324,41 +435,44 @@ function ScoreRing({score,color,size=64}) {
   const [offset,setOffset]=useState(C);
   useEffect(()=>{const t=setTimeout(()=>setOffset(C*(1-score/100)),80);return ()=>clearTimeout(t);},[score]);
   return(
-    <div style={{position:"relative",width:size,height:size,flexShrink:0}}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{transform: `rotate(-90deg)`}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#f0f0f0" strokeWidth="10" strokeDasharray={C} strokeDashoffset={0} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={offset} style={{transition:"stroke-dashoffset 1.5s ease"}}/>
-      </svg>
-      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-        <span style={{fontWeight:900,fontSize:size===64?13:18,color}}>{score}</span>
-      </div>
-    </div>
+    
+      
+        
+        
+      
+      
+        {score}
+      
+    
   );
 }
 
 function AnimBar({val,color}) {
   const [w,setW]=useState(0);
   useEffect(()=>{const t=setTimeout(()=>setW(val),100);return()=>clearTimeout(t);},[val]);
-  return <div style={{width:`${w}%`,height:"100%",borderRadius:999,background:color,transition:"width 1.2s ease"}}/>;
+  return 
+;
 }
 
 function ElementRadar({profile,dateStr}) {
   const char=CHAR_DATA[profile.charIdx??0]??CHAR_DATA[0];
   const scores=getSajuElemScores(profile,dateStr);
-  const L=["木","火","土","금","水"],sz=200,cx=100,cy=100,mR=72;
+  const L=["木","火","土","金","水"],sz=200,cx=100,cy=100,mR=72;
   const ang=[0,1,2,3,4].map(i=>(i*72-90)*Math.PI/180);
   const pt=(a,r)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
   const dpts=ang.map((a,i)=>pt(a,mR*scores[i]/100));
   const [vis,setVis]=useState(false);
   useEffect(()=>{const t=setTimeout(()=>setVis(true),100);return()=>clearTimeout(t);},[]);
   return(
-    <svg width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
-      {[.25,.5,.75,1].map((f,gi)=><polygon key={gi} points={ang.map(a=>pt(a,mR*f)).map(([x,y])=>`${x},${y}`).join(" ")} fill="none" stroke="#f0f0f0" strokeWidth="1"/>)}
-      {ang.map((a,i)=>{const[x,y]=pt(a,mR);return<line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#f0f0f0" strokeWidth="1"/>;})}
-      <polygon points={dpts.map(([x,y])=>`${x},${y}`).join(" ")} fill={`${char.color}25`} stroke={char.color} strokeWidth="2.5" strokeLinejoin="round" style={{opacity:vis?1:0,transition:"opacity .8s"}}/>
-      {dpts.map(([x,y],i)=><circle key={i} cx={x} cy={y} r="4" fill={char.color} style={{opacity:vis?1:0,transition:`opacity .4s ${.3+i*.06}s`}}/>)}
-      {ang.map((a,i)=>{const[x,y]=pt(a,mR+17);return<text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="800" fill={ELEM_COLOR[i]}>{L[i]}</text>;})}
-    </svg>
+    
+      {[.25,.5,.75,1].map((f,gi)=>pt(a,mR*f)).map(([x,y])=>`${x},${y}`).join(" ")} fill="none" stroke="#f0f0f0" strokeWidth="1"/>)}
+      {ang.map((a,i)=>{const[x,y]=pt(a,mR);return;})}
+      `${x},${y}`).join(" ")} fill={`${char.color}25`} stroke={char.color} strokeWidth="2.5" strokeLinejoin="round" style={{opacity:vis?1:0,transition:"opacity .8s"}}/>
+      {dpts.map(([x,y],i)=>)}
+      {ang.map((a,i)=>{const[x,y]=pt(a,mR+17);return
+{L[i]}
+;})}
+    
   );
 }
 
@@ -370,25 +484,28 @@ function PackReveal({char,onClose}) {
     if(phase==="show"){const t=setTimeout(()=>setP("done"),1600);return()=>clearTimeout(t);}
   },[phase]);
   return(
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[200] flex items-center justify-center" style={{background:"radial-gradient(ellipse at center,#1a1a2e 0%,#0d0d1a 100%)"}}>
-      <AnimatePresence mode="wait">
-        {phase==="idle"&&<motion.div key="i" exit={{scale:0,opacity:0}} className="text-center">
-          <motion.div animate={{y:[0,-12,0]}} transition={{repeat:Infinity,duration:1.2}} className="text-7xl mb-6">🥚</motion.div>
-          <p className="text-white/50 text-base">탭하여 아우라를 깨우세요</p>
-        </motion.div>}
-        {phase==="crack"&&<motion.div key="c" animate={{scale:[1,1.25,0.9,1.15,1]}} transition={{duration:.7}} onAnimationComplete={()=>setP("burst")} className="text-8xl">🥚</motion.div>}
-        {phase==="burst"&&<motion.div key="b" initial={{scale:0,opacity:0}} animate={{scale:1,opacity:1}} transition={{duration:.6}} onAnimationComplete={()=>setP("show")} className="text-8xl">💥</motion.div>}
-        {(phase==="show"||phase==="done")&&<motion.div key="s" initial={{scale:.5,opacity:0}} animate={{scale:1,opacity:1}} transition={{type:"spring",damping:12,stiffness:80}} onAnimationComplete={()=>setP("done")} className="text-center px-8">
-          <motion.div animate={{y:[0,-12,0]}} transition={{repeat:Infinity,duration:1.8}} className="text-[120px] mb-4 leading-none">{char.icon}</motion.div>
-          <h2 className="text-3xl font-black mb-1" style={{color:char.color,textShadow:`0 0 20px ${char.color}`}}>{char.name}</h2>
-          <p className="text-white/60 text-sm mb-2">{ELEM_NAME[char.element]}</p>
-          <div className="flex gap-2 justify-center flex-wrap mb-7">
-            {char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1 rounded-full" style={{background:char.color,color:"#fff"}}>{k}</span>)}
-          </div>
-          {phase==="done"&&<motion.button initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} whileTap={{scale:.95}} onClick={onClose} className="bg-white font-black px-8 py-3 rounded-full text-base" style={{color:char.color}}>내 운명 확인하기 →</motion.button>}
-        </motion.div>}
-      </AnimatePresence>
-    </motion.div>
+    
+      
+        {phase==="idle"&&
+          🥚
+          
+탭하여 아우라를 깨우세요
+        }
+        {phase==="crack"&&setP("burst")} className="text-8xl">🥚}
+        {phase==="burst"&&setP("show")} className="text-8xl">💥}
+        {(phase==="show"||phase==="done")&&setP("done")} className="text-center px-8">
+          {char.icon}
+          
+{char.name}
+          
+{ELEM_NAME[char.element]}
+          
+            {char.keywords.map(k=>{k})}
+          
+          {phase==="done"&&내 운명 확인하기 →}
+        }
+      
+    
   );
 }
 
@@ -411,62 +528,67 @@ function SyllableRow({syl,idx,selected,onChange}) {
   };
   const isCustomSel=selected&&!options.includes(selected);
   return(
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xl" style={{background:selected?"rgba(28,58,51,.12)":"#f5f5f5",color:selected?"#1C3A33":"#aaa"}}>{selected||syl}</div>
-          <span className="text-xs text-gray-400 font-medium">{options.length>0?`${options.length}개`:"직접입력"}</span>
-        </div>
-        <div className="flex gap-1">
-          <button onClick={()=> {setShowCustom(v=>!v);setCustomError("");}} className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-1 rounded-xl" style={{background:showCustom?"rgba(28,58,51,.12)":"#f5f5f5",color:showCustom?"#1C3A33":"#666"}}>✏️ 직접 입력</button>
-          {selected&&<button onClick={()=>onChange(idx,"")} className="text-[10px] px-2 py-1 rounded-xl text-gray-400">✕</button>}
-        </div>
-      </div>
+    
+      
+        
+          
+{selected||syl}
+          {options.length>0?`${options.length}개`:"직접입력"}
+        
+        
+           {setShowCustom(v=>!v);setCustomError("");}} className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-1 rounded-xl" style={{background:showCustom?"rgba(28,58,51,.12)":"#f5f5f5",color:showCustom?"#1C3A33":"#666"}}>✏️ 직접 입력
+          {selected&&onChange(idx,"")} className="text-[10px] px-2 py-1 rounded-xl text-gray-400">✕}
+        
+      
       {options.length>0&&(
-        <div className="flex flex-wrap gap-2 mb-2">
+        
           {options.map(hanja=>{
             const strokes=HANJA_STROKES[hanja],isSel=selected===hanja;
             return(
-              <motion.button key={hanja} whileTap={{scale:.88}} onClick={()=>onChange(idx,isSel?"":hanja)} className="flex flex-col items-center px-3 py-2 rounded-2xl border relative" style={{background:isSel?"#1C3A33":"white",borderColor:isSel?"#1C3A33":"#ddd"}}>
-                {isSel&&<div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 text-white text-[10px] rounded-full flex items-center justify-center">✓</div>}
-                <span className="text-xl leading-none font-bold">{hanja}</span>
-                {strokes&&<span className="text-[9px] mt-0.5" style={{color:isSel?"#fff":"#aaa"}}>{strokes}</span>}
-              </motion.button>
+              onChange(idx,isSel?"":hanja)} className="flex flex-col items-center px-3 py-2 rounded-2xl border relative" style={{background:isSel?"#1C3A33":"white",borderColor:isSel?"#1C3A33":"#ddd"}}>
+                {isSel&&
+✓
+}
+                {hanja}
+                {strokes&&{strokes}}
+              
             );
           })}
-        </div>
+        
       )}
       {isCustomSel&&(
-        <motion.div initial={{opacity:0,scale:.9}} animate={{opacity:1,scale:1}} className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl mb-2" style={{background:"rgba(28,58,51,.1)",border:"1.5px solid rgba(28,58,51,.3)"}}>
-          <span className="text-xl font-black text-[#1C3A33]">{selected}</span>
-          <span className="text-[10px] font-bold text-gray-500">직접 입력됨</span>
-          {HANJA_STROKES[selected]&&<span className="text-[10px] text-gray-400">({HANJA_STROKES[selected]}획)</span>}
-          <button onClick={()=>onChange(idx,"")} className="text-gray-400 ml-1 text-xs">✕</button>
-        </motion.div>
+        
+          {selected}
+          직접 입력됨
+          {HANJA_STROKES[selected]&&({HANJA_STROKES[selected]}획)}
+          onChange(idx,"")} className="text-gray-400 ml-1 text-xs">✕
+        
       )}
-      <AnimatePresence>
+      
         {showCustom&& (
-          <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}} className="rounded-2xl p-4 space-y-3 mt-1" style={{background:"rgba(28,58,51,.05)"}}>
-            <p className="text-[11px] font-bold text-gray-500">✍️ "{syl}"에 해당하는 한자 직접 입력</p>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="text-[10px] text-gray-400 block mb-1 font-bold">한자</label>
-                <input type="text" value={customHanja} maxLength={1} placeholder="예) 勳" onChange={(e)=>setCustomHanja(e.target.value.slice(0,1))} className="w-full text-center text-2xl font-black rounded-xl py-3" style={{border:"1.5px solid #ddd",color:"#1C3A33",background:"white"}}/>
-              </div>
-              <div style={{width:80}}>
-                <label className="text-[10px] text-gray-400 block mb-1 font-bold">획수</label>
-                <input type="number" value={customStrokes} placeholder="예) 8" onChange={(e)=>setCustomStrokes(e.target.value)} className="w-full text-center text-lg font-bold rounded-xl py-3" style={{border:"1.5px solid #ddd",background:"white"}}/>
-              </div>
-              <div className="flex items-end">
-                <button onClick={handleCustomAdd} className="px-4 py-2 rounded-xl font-black text-sm text-white flex items-center gap-1" style={{background:"#1C3A33"}}><Plus size={13}/> 추가</button>
-              </div>
-            </div>
-            {customError&&<motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-[10px] text-red-500">{customError}</motion.p>}
-            <p className="text-[10px] text-gray-400 leading-relaxed">예) 勳 / 희 (15획)</p>
-          </motion.div>
+          
+            
+✍️ "{syl}"에 해당하는 한자 직접 입력
+            
+              
+                한자
+                {customHanja}setCustomHanja(e.target.value.slice(0,1))} className="w-full text-center text-2xl font-black rounded-xl py-3" style={{border:"1.5px solid #ddd",color:"#1C3A33",background:"white"}}/>
+              
+              
+                획수
+                setCustomStrokes(e.target.value)} className="w-full text-center text-lg font-bold rounded-xl py-3" style={{border:"1.5px solid #ddd",background:"white"}}/>
+              
+              
+                 추가
+              
+            
+            {customError&&{customError}}
+            
+예) 勳 / 희 (15획)
+          
         )}
-      </AnimatePresence>
-    </div>
+      
+    
   );
 }
 
@@ -474,21 +596,22 @@ function HanjaPicker({name,selections,onChange}) {
   if(!name?.trim()) return null;
   const syllables=name.trim().split("");
   return (
-    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y-4">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-gray-500">한자 이름 선택 (선택사항)</label>
-        <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-2xl">{syllables.filter((_,i)=>selections[i]).length}/{syllables.length} 선택됨</span>
-      </div>
+    
+      
+        한자 이름 선택 (선택사항)
+        {syllables.filter((_,i)=>selections[i]).length}/{syllables.length} 선택됨
+      
       {syllables.some((_,i)=>selections[i])&&(
-        <div className="text-center py-3 rounded-2xl" style={{background:"rgba(28,58,51,.05)",border:"1px solid rgba(28,58,51,.12)"}}>
-          <div className="flex justify-center gap-1 items-baseline">
-            {syllables.map((syl,i)=><span key={i} className="font-black text-xl text-[#1C3A33]">{selections[i]||syl}</span>)}
-          </div>
-          <p className="text-[10px] text-gray-400 mt-1">한자 이름 미리보기</p>
-        </div>
+        
+          
+            {syllables.map((syl,i)=>{selections[i]||syl})}
+          
+          
+한자 이름 미리보기
+        
       )}
-      {syllables.map((syl,idx)=><SyllableRow key={idx} syl={syl} idx={idx} selected={selections[idx]||""} onChange={onChange}/>)}
-    </motion.div>
+      {syllables.map((syl,idx)=>)}
+    
   );
 }
 
@@ -508,25 +631,28 @@ function CharCard({profile,char,streak=1}) {
     try{await navigator.clipboard.writeText(txt);setCopied(true);setTimeout(()=>setCopied(false),2000);}catch{}
   };
   return(
-    <motion.div initial={{scale:.9,opacity:0}} animate={{scale:1,opacity:1}} transition={{type:"spring",damping:15}} className="rounded-[40px] p-8 text-center shadow-xl relative overflow-hidden" style={{background:`linear-gradient(145deg,${char.bg},white)`,border:`2px solid ${char.color}20`}}>
-      <div className="absolute bottom-3 right-5 text-[80px] opacity-[0.06] pointer-events-none">{char.icon}</div>
-      <motion.div animate={{y:[0,-8,0]}} transition={{repeat:Infinity,duration:3.5}} className="text-[96px] mb-4 leading-none">{char.icon}</motion.div>
-      <h2 className="text-3xl font-black text-[#1C3A33] mb-0.5">{profile.name}</h2>
-      {hanjaDisplay&&<motion.div initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} className="text-lg font-bold mb-1 tracking-widest" style={{color:char.color}}>{hanjaDisplay}</motion.div>}
-      <p className="text-base font-bold mb-3" style={{color:char.color}}>{char.name}</p>
-      <div className="flex justify-center gap-2 flex-wrap mb-3">
-        <span className="text-xs font-black px-3 py-1.5 rounded-full text-white" style={{backgroundColor:char.color}}>{ELEM_NAME[char.element]}</span>
-        {char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1.5 rounded-full bg-white/70" style={{color:char.color}}>{k}</span>)}
-      </div>
-      <div className="flex justify-center mb-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-black text-xs" style={{background: `${char.color}15`,border: `1.5px solid ${char.color}30`}}>
+    
+      
+{char.icon}
+      {char.icon}
+      
+{profile.name}
+      {hanjaDisplay&&{hanjaDisplay}}
+      
+{char.name}
+      
+        {ELEM_NAME[char.element]}
+        {char.keywords.map(k=>{k})}
+      
+      
+        
           {lv.icon} {lv.rank} {lv.name}
-        </div>
-      </div>
-      <motion.button whileTap={{scale:.93}} onClick={handleShare} className="flex items-center mx-auto gap-2 text-xs font-bold px-5 py-2.5 rounded-2xl font-black text-base" style={{color:char.color,border:"1.5px solid #30"}}>
-        {copied?<Check size={14}/>:<Share2 size={14}/>} {copied?"복사됨 ✓":"Share2"} 공유하기
-      </motion.button>
-    </motion.div>
+        
+      
+      
+        {copied?:} {copied?"복사됨 ✓":"Share2"} 공유하기
+      
+    
   );
 }
 
@@ -535,20 +661,20 @@ function CategoryFortune({profile,char}) {
   const cats=getSajuCats(profile,today);
   const items=[{label:"연애운",key:"love",icon:"💖",color:"#e91e63"},{label:"직업운",key:"career",icon:"📈",color:"#1976d2"},{label:"건강운",key:"health",icon:"🌿",color:"#388e3c"},{label:"재물운",key:"money",icon:"💰",color:"#f57f17"}];
   return (
-    <div className="space-y-3">
+    
       {items.map(({label,key,icon,color})=>(
-        <div key={key} className="flex justify-between items-center mb-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-bold" style={{color}}>{icon}</span>
-            <span className="text-xs font-bold text-black">{label}</span>
-          </div>
-          <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden flex-1 mx-3">
-            <AnimBar val={cats[key]} color={color}/>
-          </div>
-          <span className="text-xs font-black" style={{color}}>{cats[key]}점</span>
-        </div>
+        
+          
+            {icon}
+            {label}
+          
+          
+            
+          
+          {cats[key]}점
+        
       ))}
-    </div>
+    
   );
 }
 
@@ -560,28 +686,33 @@ function DailyFortune({profile,char}) {
   const todayStem=(jdn+49)%10,todayBranch=(jdn+49)%12;
   const summary=score>=90?"최고의 날! ✨":score>=80?"에너지 넘침 ✨":score>=70?"순항 중":"조심스러운 하루";
   return (
-    <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{}} className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #1C3A33"}}>
-      <div className="flex items-center gap-2 mb-4">
-        <Sun size={17} color="#c0550a"/>
-        <span className="font-bold text-[#1C3A33] text-[15px]">오늘의 아우라 ({today})</span>
-        <span className="text-[10px] text-gray-400 ml-auto">{STEMS[todayStem]} {BRANCHES[todayBranch]}</span>
-      </div>
-      <div className="flex items-center gap-4 mb-5">
-        <ScoreRing score={score} color={char.color} size={64}/>
-        <div className="flex-1">
-          <div className="font-bold text-gray-800 text-[15px]">{summary}</div>
-          <div className="text-sm text-gray-500 mt-1">오늘 {STEMS[todayStem]} 일 ↔ 내 일주</div>
-        </div>
-      </div>
-      <div className="mb-5">
-        <p className="text-xs font-bold text-gray-400 mb-3">분야별 오늘의 운세</p>
-        <CategoryFortune profile={profile} char={char}/>
-      </div>
-      <div className="rounded-2xl p-4" style={{background: `${char.color}0d` }}>
-        <p className="text-[10px] font-black mb-1.5" style={{color:char.color}}>★ 행운 미션</p>
-        <p className="text-[13px] text-gray-700 leading-relaxed">{mission}</p>
-      </div>
-    </motion.div>
+    
+      
+        
+        오늘의 아우라 ({today})
+        {STEMS[todayStem]} {BRANCHES[todayBranch]}
+      
+      
+        
+        
+          
+{summary}
+          
+오늘 {STEMS[todayStem]} 일 ↔ 내 일주
+        
+      
+      
+        
+분야별 오늘의 운세
+        
+      
+      
+        
+★ 행운 미션
+        
+{mission}
+      
+    
   );
 }
 
@@ -593,32 +724,40 @@ function DailyDetailModal({profile,dateStr,onClose}) {
   const cats=getSajuCats(profile,dateStr);
   const summary=score>=90?"최고의 날! ✨":score>=80?"에너지 넘침 ✨":score>=70?"순항 중":"조심스러운 하루";
   return (
-    <motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}} exit={{opacity:0,y:40}} className="fixed inset-0 z-[300] flex items-end bg-black/60" onClick={onClose}>
-      <motion.div onClick={e=>e.stopPropagation()} className="bg-white w-full rounded-t-3xl max-h-[90vh] overflow-auto">
-        <div className="flex justify-between items-center mb-4 px-6 pt-6">
-          <h3 className="text-xl font-black text-[#1C3A33]">{dateStr} ({STEMS[ts]}{BRANCHES[tb]})</h3>
-          <button onClick={onClose} className="text-gray-400 text-3xl leading-none">×</button>
-        </div>
-        <div className="text-center py-3 mb-4 rounded-2xl bg-gray-50 mx-6">
-          <div className="text-5xl font-black text-[#1C3A33]">{score}점</div>
-          <div className="text-sm text-gray-500 mt-1">{summary}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 mb-4 px-6">
+    
+      e.stopPropagation()} className="bg-white w-full rounded-t-3xl max-h-[90vh] overflow-auto">
+        
+          
+{dateStr} ({STEMS[ts]}{BRANCHES[tb]})
+          ×
+        
+        
+          
+{score}점
+          
+{summary}
+        
+        
           {[["연애운","love","💖","#e91e63"],["직업운","career","📈","#1976d2"],["건강운","health","🌿","#388e3c"],["재물운","money","💰","#f57f17"]].map(([lb,k,ic,cl])=>(
-            <div key={k} className="rounded-2xl p-3 text-center" style={{background:"linear-gradient(135deg, #1C3A33, #2d5a4a)"}}>
-              <div className="text-xl mb-1">{ic}</div>
-              <div className="text-xs font-bold mb-1" style={{color:cl}}>{lb}</div>
-              <div className="text-xl font-black" style={{color:cl}}>{cats[k]}점</div>
-            </div>
+            
+              
+{ic}
+              
+{lb}
+              
+{cats[k]}점
+            
           ))}
-        </div>
-        <div className="rounded-2xl bg-emerald-50 p-4 text-center mb-4 mx-6">
-          <p className="text-emerald-700 text-xs font-black mb-1">✨ 행운 미션</p>
-          <p className="text-gray-700 text-sm">{mission}</p>
-        </div>
-        <button onClick={onClose} className="w-full py-4 rounded-3xl font-black text-center mx-6 mb-6" style={{background: "linear-gradient(135deg, #1C3A33, #2d5a4a)"}}>닫기</button>
-      </motion.div>
-    </motion.div>
+        
+        
+          
+✨ 행운 미션
+          
+{mission}
+        
+        닫기
+      
+    
   );
 }
 
@@ -630,56 +769,65 @@ function MonthlyFortune({profile, char}) {
   const cal=useMemo(() => getSajuCalendar(profile, year, month), [profile.id, year, month]);
   return (
     <>
-      <div className="bg-white rounded-[30px] p-5 shadow-sm" style={{border: "1.5px solid #1C3A33"}}>
-        <div className="flex justify-between items-center mb-3">
-          <div className="font-bold text-[#1C3A33] flex items-center gap-1.5"><Calendar size={16}/> {year}년 {month}월</div>
-          <div className="flex gap-2 text-[10px] text-gray-400">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400"></span>길일</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400"></span>흉일</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray-700">
-          {["일", "월", "화", "수", "목", "금", "토"].map(d => <div key={d}>{d}</div>)}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({length: firstDay}).map((_, i) => <div key={`e${i}`} className="text-center text-gray-400"> </div>)}
+      
+        
+          
+ {year}년 {month}월
+          
+            길일
+            흉일
+          
+        
+        
+          {["일", "월", "화", "수", "목", "금", "토"].map(d => 
+{d}
+)}
+        
+        
+          {Array.from({length: firstDay}).map((_, i) => 
+ 
+)}
           {Array.from({length: daysInMonth}, (_, i) => {
             const d=i+1, isT=d===todayDate, isG=cal.good.has(d), isB=cal.bad.has(d);
             const bg=isT? `${char.color}22`: isG? "#f0fdf4": isB? "#fef2f2": "#fafafa";
             const border=isT? `2px solid ${char.color}`: isG? "1px solid #86efac": isB? "1px solid #f87171": "1px solid #e2e8f0";
             const color=isT? "#1C3A33": isG? "#166534": isB? "#991b1b": "#555";
             return (
-              <motion.button key={i} whileTap={{scale: .88}} onClick={() => setSel(d)} className="h-10 rounded-2xl flex items-center justify-center text-xs relative" style={{backgroundColor:bg,color,border}}>
+               setSel(d)} className="h-10 rounded-2xl flex items-center justify-center text-xs relative" style={{backgroundColor:bg,color,border}}>
                 {d}
-                {isG&&<span className="absolute top-0.5 right-0.5 text-[8px]">✨</span>}
-                {isB&&<span className="absolute top-0.5 right-0.5 text-[8px]">△</span>}
-              </motion.button>
+                {isG&&✨}
+                {isB&&△}
+              
             );
           })}
-        </div>
-      </div>
-      <AnimatePresence>
-        {sel&&<DailyDetailModal profile={profile} dateStr={`${year}-${month}-${sel}`} onClose={()=>setSel(null)}/>}
-      </AnimatePresence>
-    </>
+        
+      
+      
+        {sel&&setSel(null)}/>}
+      
+    
   );
 }
 
 function LuckyItems({char}) {
   const items=[{icon:"🎨",label:"행운 색",value:char.lucky.colors.join(", ")},{icon:"🌟",label:"행운 숫자",value:char.lucky.numbers.join(", ")}];
   return (
-    <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{}} className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #1C3A33"}}>
-      <div className="flex items-center gap-2 mb-4"><Star size={17} color="#c0550a"/><span className="font-bold text-[#1C3A33] text-[15px]">행운 아이템</span></div>
-      <div className="grid grid-cols-2 gap-2.5">
+    
+      
+행운 아이템
+      
         {items.map(x=>(
-          <div key={x.label} className="rounded-2xl p-3.5" style={{background:`${char.color}10`}}>
-            <div className="text-xl mb-1 leading-none">{x.icon}</div>
-            <div className="text-[10px] font-bold mb-0.5" style={{color:`${char.color}`}}>{x.label}</div>
-            <div className="text-[12px] font-semibold text-gray-700">{x.value}</div>
-          </div>
+          
+            
+{x.icon}
+            
+{x.label}
+            
+{x.value}
+          
         ))}
-      </div>
-    </motion.div>
+      
+    
   );
 }
 
@@ -688,56 +836,64 @@ function HomeScreen({profiles,activeId,setActiveId,onAdd,streak}) {
   const char = p ? (CHAR_DATA[p.charIdx??0]??CHAR_DATA[0]) : null;
   const [tab,setTab]=useState("daily");
   return(
-    <motion.div key="home" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="p-5">
+    
       {profiles.length>0&&(
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-1" style={{scrollbarWidth:"none"}}>
+        
           {profiles.map(x=>{
             const c=CHAR_DATA[x.charIdx??0]??CHAR_DATA[0],on=x.id===activeId;
             return(
-              <motion.button key={x.id} whileTap={{scale:.95}} onClick={()=>setActiveId(x.id)} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold" style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
-                <span className="text-base">{c.icon}</span>{x.name}
-              </motion.button>
+              setActiveId(x.id)} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold" style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
+                {c.icon}{x.name}
+              
             );
           })}
-          <motion.button whileTap={{scale:.95}} onClick={onAdd} className="flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-2xl bg-white border-2 border-dashed border-gray-200 text-gray-300 text-sm font-bold">
-            <Plus size={13}/> 추가
-          </motion.button>
-        </div>
+          
+             추가
+          
+        
       )}
       {p&&char?(
-        <div className="space-y-4">
-          <CharCard profile={p} char={char} streak={streak}/>
-          <div className="bg-white rounded-[28px] p-1 flex" style={{border:"1.5px solid #f0f0f0"}}>
+        
+          
+          
             {["daily","monthly"].map((t,i)=>(
-              <button key={t} onClick={()=>setTab(t)} className={`flex-1 py-2.5 rounded-3xl text-sm font-bold transition-all ${tab===t?"text-white shadow":"text-gray-400"}`} style={{background:tab===t?"#1C3A33":"transparent"}}>
+              setTab(t)} className={`flex-1 py-2.5 rounded-3xl text-sm font-bold transition-all ${tab===t?"text-white shadow":"text-gray-400"}`} style={{background:tab===t?"#1C3A33":"transparent"}}>
                 {["일별 운세","월별 운세"][i]}
-              </button>
+              
             ))}
-          </div>
-          {tab==="daily"?<DailyFortune profile={p} char={char}/>:<MonthlyFortune profile={p} char={char}/>}
-          <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.28}} className="bg-white rounded-[28px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-            <div className="flex items-center gap-2 mb-2.5"><Sparkles size={16} color="#c0550a"/><span className="font-bold text-[#1C3A33] text-[15px]">나는 왜 이 동물?</span></div>
-            <p className="text-gray-600 text-sm leading-relaxed">{char.rationale}</p>
-          </motion.div>
-          <div className="grid grid-cols-2 gap-3">
+          
+          {tab==="daily"?:}
+          
+            
+나는 왜 이 동물?
+            
+{char.rationale}
+          
+          
             {[{title:"대운 흐름",color:"#BF6100",Icon:Award,text:char.luckTrend},{title:"주의할 점",color:"#C62828",Icon:Zap,text:char.caution}].map((x,i)=>(
-              <motion.div key={x.title} initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.32+i*.06}} className="bg-white rounded-[22px] p-4 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-                <div className="font-bold text-xs mb-2 flex items-center gap-1.5" style={{color:x.color}}><x.Icon size={13}/>{x.title}</div>
-                <p className="text-xs text-gray-600 leading-relaxed">{x.text}</p>
-              </motion.div>
+              
+                
+{x.title}
+                
+{x.text}
+              
             ))}
-          </div>
-          <LuckyItems char={char}/>
-        </div>
+          
+          
+        
       ):(
-        <motion.div initial={{scale:.95,opacity:0}} animate={{scale:1,opacity:1}} className="text-center py-20 bg-white rounded-[40px] cursor-pointer" style={{border:"2px dashed #ddd"}} onClick={onAdd}>
-          <div className="text-7xl mb-4">⚪</div>
-          <p className="font-bold text-gray-400 text-lg">내 아우라를 찾아보세요</p>
-          <p className="text-sm text-gray-300 mt-1">생년월일을 입력하면 120가지 동물 중 L</p>
-          <div className="mt-6 inline-flex items-center gap-2 bg-[#1C3A33] text-white text-sm font-black px-6 py-3 rounded-3xl">지금 시작하기 ✨</div>
-        </motion.div>
+        
+          
+⚪
+          
+내 아우라를 찾아보세요
+          
+생년월일을 입력하면 120가지 동물 중 L
+          
+지금 시작하기 ✨
+        
       )}
-    </motion.div>
+    
   );
 }
 
@@ -746,128 +902,147 @@ function FortuneScreen({profiles,activeId,setActiveId}) {
   const char=p?(CHAR_DATA[p.charIdx??0]??CHAR_DATA[0]):null;
   const [tab,setTab]=useState("radar");
   const today=todayStr();
-  const idiom=p?getSajuIdiom(p,today):IDIOMS[0];
-  const bd=p?getNextBirthday(+p.m,+p.d):null;
   const nameFortune=useMemo(()=> {
     if(!p?.name) return null;
     return getNameFortune(p.name.trim().split(""),p.hanjaSelections??{});
   },[p]);
   if(!p||!char) return(
-    <motion.div key="fortune" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="p-5 text-center py-24 text-gray-300">
-      <Star size={48} className="mx-auto mb-4 opacity-30"/>
-      <p className="font-bold">프로필을 먼저 등록해주세요</p>
-    </motion.div>
+    
+      
+      
+프로필을 먼저 등록해주세요
+    
   );
   return(
-    <motion.div key="fortune" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="p-5">
+    
       {profiles.length>1&&(
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-2" style={{scrollbarWidth:"none"}}>
+        
           {profiles.map(x=>{const c=CHAR_DATA[x.charIdx??0]??CHAR_DATA[0],on=x.id===activeId;
             return(
-              <motion.button key={x.id} whileTap={{scale:.95}} onClick={()=>setActiveId(x.id)} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold" style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
-                <span>{c.icon}</span>{x.name}
-              </motion.button>
+              setActiveId(x.id)} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold" style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
+                {c.icon}{x.name}
+              
             );
           })}
-        </div>
+        
       )}
-      <div className="grid grid-cols-4 gap-1 bg-white rounded-2xl p-1 mb-4" style={{border:"1.5px solid #f0f0f0"}}>
+      
         {[{id:"radar",label:"오행"},{id:"cat",label:"분야별"},{id:"saju",label:"사주"},{id:"name",label:"이름"}].map(t=>(
-          <button key={t.id} onClick={() => setTab(t.id)} className={`py-2 rounded-xl text-xs font-bold transition-all ${tab===t.id?`text-white`:"text-gray-400"}`} style={{background:tab===t.id?char.color:"transparent"}}>{t.label}</button>
+           setTab(t.id)} className={`py-2 rounded-xl text-xs font-bold transition-all ${tab===t.id?`text-white`:"text-gray-400"}`} style={{background:tab===t.id?char.color:"transparent"}}>{t.label}
         ))}
-      </div>
-      <AnimatePresence mode="wait">
+      
+      
         {tab==="radar"&&(
-          <motion.div key="radar" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:12}}>
-            <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-              <div className="text-center font-bold text-[#1C3A33] mb-1">오행 (五行) 균형</div>
-              <p className="text-[11px] text-gray-400 text-center mb-4">내 원국 오행 + 오늘 기운</p>
-              <div className="flex justify-center"><ElementRadar profile={p} dateStr={today}/></div>
-              <div className="grid grid-cols-5 gap-1 mt-3">
+          
+            
+              
+오행 (五行) 균형
+              
+내 원국 오행 + 오늘 기운
+              
+
+              
                 {["목","화","토","금","수"].map((el,i)=>(
-                  <div key={el} className="text-center">
-                    <div className="text-base">{["🌳","🔥","⛰️","⚔️","💧"][i]}</div>
-                    <div className="text-[10px] font-bold mt-0.5" style={{color:ELEM_COLOR[i]}}>{el}</div>
-                    <div className="text-[10px] text-gray-400">{getSajuElemScores(p,today)[i]}점</div>
-                  </div>
+                  
+                    
+{["🌳","🔥","⛰️","⚔️","💧"][i]}
+                    
+{el}
+                    
+{getSajuElemScores(p,today)[i]}점
+                  
                 ))}
-              </div>
-            </div>
-          </motion.div>
+              
+            
+          
         )}
         {tab==="cat"&&(
-          <motion.div key="cat" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:12}}>
-            <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-              <div className="font-bold text-[#1C3A33] mb-1">분야별 오늘의 운세</div>
-              <p className="text-[11px] text-gray-400 mb-5">오늘 일주 ({STEMS[(getTodayJdn(today)+49)%10]} {BRANCHES[(getTodayJdn(today)+49)%12]})</p>
-              <CategoryFortune profile={p} char={char}/>
-            </div>
-          </motion.div>
+          
+            
+              
+분야별 오늘의 운세
+              
+오늘 일주 ({STEMS[(getTodayJdn(today)+49)%10]} {BRANCHES[(getTodayJdn(today)+49)%12]})
+              
+            
+          
         )}
         {tab==="saju"&&(
-          <motion.div key="saju" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:12}}>
+          
             {(() => {
               const saju=p.saju?calcSaju(+p.y,+p.m,+p.d,(p.h??12),+(p.mi??0),p.timeUnknown):null;
               const pillars=[{label:"年柱",stem:saju?.yStem,branch:saju?.yBranch},{label:"月柱",stem:saju?.mStem,branch:saju?.mBranch},{label:"日柱",stem:saju?.dStem,branch:saju?.dBranch},{label:"時柱",stem:saju?.hStem,branch:saju?.hBranch}];
               return(
-                <div className="bg-white rounded-[24px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-                  <div className="flex items-center gap-2 mb-4"><span className="text-xs font-black px-2 py-0.5 rounded bg-[#1C3A33] text-white">사주팔자</span></div>
-                  <div className="grid grid-cols-4 gap-2 text-center">
+                
+                  
+사주팔자
+                  
                     {pillars.map((pp,i)=>(
-                      <div key={i} className="rounded-2xl py-3 px-1" style={{background:pp.stem!=null?`${char.color}15`:"#fafafa"}}>
-                        <div className="text-[10px] text-gray-400 mb-1 font-bold">{pp.label}</div>
-                        <div className="text-[14px] font-bold">{STEMS[pp.stem]||"-"} {BRANCHES[pp.branch]||"-"}</div>
-                      </div>
+                      
+                        
+{pp.label}
+                        
+{STEMS[pp.stem]||"-"} {BRANCHES[pp.branch]||"-"}
+                      
                     ))}
-                  </div>
-                </div>
+                  
+                
               );
             })()}
-          </motion.div>
+          
         )}
         {tab==="name"&&(
-          <motion.div key="name" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:12}}>
+          
             {nameFortune?(
-              <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-                <div className="flex justify-center gap-3 mb-3">
+              
+                
                   {nameFortune.details.map((d,i)=>(
-                    <div key={i} className="text-center">
-                      <div className="text-3xl font-black" style={{color:char.color}}>{d.hanja||d.syl}</div>
-                      <div className="text-[10px] text-gray-400">{d.strokes}획</div>
-                    </div>
+                    
+                      
+{d.hanja||d.syl}
+                      
+{d.strokes}획
+                    
                   ))}
-                </div>
-                <div className="text-center">
-                  <div className="font-black text-xl mb-1" style={{color:NAME_FORTUNE[nameFortune.elem].icon}}>{NAME_FORTUNE[nameFortune.elem].title}</div>
-                  <p className="text-xs text-gray-500">{nameFortune.fortune.desc}</p>
-                </div>
-                <div className="mt-6">
+                
+                
+                  
+{NAME_FORTUNE[nameFortune.elem].title}
+                  
+{nameFortune.fortune.desc}
+                
+                
                   {(() => {
                     const h=getNameHarmony(char.element,nameFortune.elem);
                     return(
-                      <div className="rounded-2xl p-4" style={{background: `${h.color}10`}}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-black text-sm" style={{color:h.color}}>{h.label}</span>
-                          <span className="text-xs font-black px-2 py-0.5 rounded-full" style={{background:h.color,color:"#fff"}}>{h.score}점</span>
-                        </div>
-                        <div className="h-2 rounded-full bg-gray-100 overflow-hidden"><AnimBar val={h.score} color={h.color}/></div>
-                        <p className="text-xs text-gray-600 mt-3">{h.desc}</p>
-                      </div>
+                      
+                        
+                          {h.label}
+                          {h.score}점
+                        
+                        
+
+                        
+{h.desc}
+                      
                     );
                   })()}
-                </div>
-              </div>
+                
+              
             ):(
-              <div className="bg-white rounded-[28px] p-8 text-center shadow-sm">
-                <div className="text-5xl mb-3">✍️</div>
-                <p className="font-bold text-gray-600 mb-1">한자 이름이 아직 없어요</p>
-                <p className="text-xs text-gray-400">프로필 등록 · 수정 시 한자를 선택하면 더 정확한 운세를 볼 수 있습니다</p>
-              </div>
+              
+                
+✍️
+                
+한자 이름이 아직 없어요
+                
+프로필 등록 · 수정 시 한자를 선택하면 더 정확한 운세를 볼 수 있습니다
+              
             )}
-          </motion.div>
+          
         )}
-      </AnimatePresence>
-    </motion.div>
+      
+    
   );
 }
 
@@ -888,59 +1063,65 @@ function AddScreen({onSave,onBack,editProfile}) {
   };
   const sel="p-3 bg-gray-50 rounded-xl text-sm font-medium outline-none w-full";
   return(
-    <motion.div key="add" initial={{y:40,opacity:0}} animate={{y:0,opacity:1}} exit={{y:40,opacity:0}} className="p-5">
-      <button onClick={onBack} className="flex items-center gap-1 text-gray-400 mb-5 font-bold text-sm">
-        <ArrowLeft size={16}/> 돌아가기
-      </button>
-      <div className="bg-white rounded-[36px] p-6 shadow-lg" style={{border:`2px solid ${previewChar.color}30`}}>
-        <motion.div key={previewChar.name} initial={{scale:.8,opacity:0}} animate={{scale:1,opacity:1}} className="text-center py-5 rounded-2xl mb-4" style={{background:previewChar.bg}}>
-          <div className="text-[72px] leading-none mb-1">{previewChar.icon}</div>
-          <div className="font-bold text-sm" style={{color:previewChar.color}}>{previewChar.name}</div>
-          <div className="text-[10px] text-gray-400 mt-0.5">인덱스 {previewSaju.charIdx} ({previewSaju.charIdx%2===0?"낮·양시":"밤·음시"})</div>
-        </motion.div>
-        <h2 className="text-2xl font-black text-[#1C3A33] mb-5">{editProfile?"프로필 수정":"새 프로필 등록"}</h2>
-        <div className="space-y-5">
-          <div>
-            <label className="text-xs font-bold text-gray-500 block mb-1.5">이름</label>
-            <input placeholder="이름을 입력해주세요" value={form.name} className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-medium text-[#2C2115] text-[15px]" style={{border:`1.5px solid ${form.name?previewChar.color+"40":"transparent"}`}} onChange={e=>setForm({...form,name:e.target.value})}/>
-          </div>
+    
+      
+         돌아가기
+      
+      
+        
+          
+{previewChar.icon}
+          
+{previewChar.name}
+          
+인덱스 {previewSaju.charIdx} ({previewSaju.charIdx%2===0?"낮·양시":"밤·음시"})
+        
+        
+{editProfile?"프로필 수정":"새 프로필 등록"}
+        
+          
+            이름
+            {form.name}setForm({...form,name:e.target.value})}/>
+          
           {form.name.trim()&&(
-            <div className="bg-gray-50 rounded-2xl p-4">
-              <HanjaPicker name={form.name} selections={hanjaSelections} onChange={handleHanjaChange}/>
-            </div>
+            
+              
+            
           )}
-          <div>
-            <label className="text-xs font-bold text-gray-500 block mb-1.5">생년월일</label>
-            <div className="grid grid-cols-3 gap-2">
-              <select className={sel} value={form.y} onChange={e=>setForm({...form,y:e.target.value})}>{YS.map(y=><option key={y} value={y}>{y}년</option>)}</select>
-              <select className={sel} value={form.m} onChange={e=>setForm({...form,m:e.target.value,d:"1"})}>{MS.map(m=><option key={m} value={m}>{m}월</option>)}</select>
-              <select className={sel} value={form.d} onChange={e=>setForm({...form,d:e.target.value})}>{days.map(d=><option key={d} value={d}>{d}일</option>)}</select>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="text-xs font-bold text-gray-500">태어난 시각 (KST)</label>
-              <div className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer" onClick={()=>setForm({...form,timeUnknown:!form.timeUnknown})}>
-                <div className="w-10 h-5 rounded-full flex items-center px-0.5 transition-colors" style={{backgroundColor:form.timeUnknown?"#1C3A33":"#d1d5db"}}>
-                  <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${form.timeUnknown?"translate-x-5":"translate-x-0"}`}/>
-                </div>
+          
+            생년월일
+            
+              setForm({...form,y:e.target.value})}>{YS.map(y=>{y}년)}
+              setForm({...form,m:e.target.value,d:"1"})}>{MS.map(m=>{m}월)}
+              setForm({...form,d:e.target.value})}>{days.map(d=>{d}일)}
+            
+          
+          
+            
+              태어난 시각 (KST)
+              
+setForm({...form,timeUnknown:!form.timeUnknown})}>
+                
+                  
+                
                 시간 모름
-              </div>
-            </div>
+              
+            
             {!form.timeUnknown&&(
-              <div className="grid grid-cols-2 gap-2">
-                <select className={sel} value={form.h} onChange={e=>setForm({...form,h:e.target.value})}>{HS.map(h=><option key={h} value={h}>{h}시</option>)}</select>
-                <select className={sel} value={form.mi} onChange={e=>setForm({...form,mi:e.target.value})}>{MI.map(mi=><option key={mi} value={mi}>{mi}분</option>)}</select>
-              </div>
+              
+                setForm({...form,h:e.target.value})}>{HS.map(h=>{h}시)}
+                setForm({...form,mi:e.target.value})}>{MI.map(mi=>{mi}분)}
+              
             )}
-            <p className="text-[10px] text-gray-400 mt-1.5">♦ KST -30분 보정 · 자정 23:30~23:59은 전날로 계산</p>
-          </div>
-          <motion.button whileTap={{scale:.97}} onClick={handleSave} className="w-full py-4 rounded-[20px] font-black text-xl text-white shadow-xl" style={{background:"linear-gradient(135deg,#1C3A33,#2d5a4a)"}}>
+            
+♦ KST -30분 보정 · 자정 23:30~23:59은 전날로 계산
+          
+          
             {editProfile?"수정 완료 ✓":"등록하기 ✨"}
-          </motion.button>
-        </div>
-      </div>
-    </motion.div>
+          
+        
+      
+    
   );
 }
 
@@ -957,50 +1138,61 @@ function FriendsScreen({profiles,activeId,onSelect,onDelete,onEdit,onAdd,onImpor
     r.readAsText(file);e.target.value="";
   };
   return(
-    <motion.div key="friends" initial={{x:40,opacity:0}} animate={{x:0,opacity:1}} exit={{x:40,opacity:0}} className="p-5">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-black text-[#1C3A33]">👥 아우라 친구들</h2>
-        <button onClick={onAdd} className="flex items-center gap-1 bg-[#1C3A33] text-white text-sm font-black px-4 py-2 rounded-2xl"><Plus size={13}/> 추가</button>
-      </div>
+    
+      
+        
+👥 아우라 친구들
+         추가
+      
       {profiles.length===0?(
-        <div className="text-center py-20 text-gray-300"><UserCircle size={52} className="mx-auto mb-4 opacity-30"/><p className="font-bold">아직 친구가 없어요</p></div>
+        
+아직 친구가 없어요
       ):(
-        <div className="space-y-3">
-          <AnimatePresence>
+        
+          
             {profiles.map(p=>{
               const c=CHAR_DATA[p.charIdx??0]??CHAR_DATA[0],on=p.id===activeId;
               const hanjaName=p.hanjaSelections&&p.name?p.name.trim().split("").map((s,i)=>p.hanjaSelections[i]||s).join(""):null;
               return(
-                <motion.div key={p.id} layout initial={{opacity:0,x:-15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:15}} className="flex items-center gap-3 bg-white p-4 rounded-[22px]" style={{border:`2px solid ${on?c.color:"#f0f0f0"}`}}>
-                  <motion.button whileTap={{scale:.9}} onClick={()=>onSelect(p.id)} className="flex-1 min-w-0 cursor-pointer flex items-center gap-3" onClick={()=>onSelect(p.id)}>
-                    <div className="text-4xl flex-shrink-0">{c.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-black text-gray-800 text-[15px]">{p.name}</div>
-                      {hanjaName&&<div className="text-[11px] font-bold tracking-widest text-gray-500">{hanjaName}</div>}
-                      <div className="text-xs text-gray-500">{c.name}</div>
-                      <div className="text-[10px] font-bold mt-0.5" style={{color:c.color}}>{ELEM_NAME[c.element]}</div>
-                    </div>
-                  </motion.button>
-                  {on&&<span className="text-[10px] bg-[#1C3A33] text-white px-2 py-0.5 rounded-full text-xs">현재</span>}
-                  <motion.button whileTap={{scale:.9}} onClick={()=>onEdit(p)} className="text-xs px-3 py-2 rounded-2xl bg-gray-100">편집</motion.button>
-                  <motion.button whileTap={{scale:.9}} onClick={()=>{if(window.confirm("삭제할까요?")) onDelete(p.id);}} className="text-xs px-3 py-2 rounded-2xl text-red-500">삭제</motion.button>
-                </motion.div>
+                
+                  onSelect(p.id)} 
+                    className="flex-1 min-w-0 cursor-pointer flex items-center gap-3"
+                  >
+                    
+{c.icon}
+                    
+                      
+{p.name}
+                      {hanjaName&&
+{hanjaName}
+}
+                      
+{c.name}
+                      
+{ELEM_NAME[c.element]}
+                    
+                  
+                  {on&&현재}
+                  onEdit(p)} className="text-xs px-3 py-2 rounded-2xl bg-gray-100">편집
+                  {if(window.confirm("삭제할까요?")) onDelete(p.id);}} className="text-xs px-3 py-2 rounded-2xl text-red-500">삭제
+                
               );
             })}
-          </AnimatePresence>
-        </div>
+          
+        
       )}
-      <div className="mt-8 bg-white rounded-[24px] p-5" style={{border:"1.5px solid #f0f0f0"}}>
-        <p className="text-xs font-bold text-gray-400 mb-3">📦 데이터 백업 / 복구</p>
-        <div className="flex gap-2">
-          <button onClick={handleExport} className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-2xl bg-gray-100 text-xs font-bold"><Download size={12}/> 내보내기</button>
-          <label className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-2xl bg-gray-100 text-xs font-bold cursor-pointer"><Upload size={12}/> 가져오기<input type="file" accept=".json" className="hidden" onChange={handleImport}/></label>
-        </div>
-        <AnimatePresence>
-          {status&&<motion.div initial={{opacity:0,y:5}} animate={{opacity:1,y:0}} className="mt-3 text-xs font-bold text-center">{status==="ok"?"✓ 복구 완료!":"❌ 파일 형식을 확인해주세요."}</motion.div>}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+      
+        
+📦 데이터 백업 / 복구
+        
+           내보내기
+           가져오기
+        
+        
+          {status&&{status==="ok"?"✓ 복구 완료!":"❌ 파일 형식을 확인해주세요."}}
+        
+      
+    
   );
 }
 
@@ -1012,57 +1204,68 @@ function MatchScreen({profiles}) {
   const c2=p2?(CHAR_DATA[p2.charIdx??0]??CHAR_DATA[0]):null;
   const compat=(c1&&c2&&s1!==s2)?getCompat(p1.charIdx??0,p2.charIdx??0):null;
   return(
-    <motion.div key="match" initial={{x:40,opacity:0}} animate={{x:0,opacity:1}} exit={{x:40,opacity:0}} className="p-5">
-      <h2 className="text-2xl font-black text-[#1C3A33] mb-5">💖 아우라 궁합</h2>
+    
+      
+💖 아우라 궁합
       {profiles.length<2?(
-        <div className="text-center py-20 text-gray-300"><Heart size={52} className="mx-auto mb-4 opacity-30"/><p className="font-bold">두 명 이상 등록해주세요</p></div>
+        
+두 명 이상 등록해주세요
       ):(
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        
+          
             {[{label:"첫 번째",val:s1,set:setS1},{label:"두 번째",val:s2,set:setS2}].map(({label,val,set})=>(
-              <div key={label}>
-                <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1">{label}</p>
-                <select value={val??""} onChange={e=>set(+e.target.value)} className="w-full p-3 bg-white rounded-2xl text-sm font-bold outline-none" style={{border:"2px solid #C1A87D"}}>
-                  {profiles.map(p=><option key={p.id} value={p.id}>{(CHAR_DATA[p.charIdx??0]??CHAR_DATA[0]).icon} {p.name}</option>)}
-                </select>
-              </div>
+              
+                
+{label}
+                set(+e.target.value)} className="w-full p-3 bg-white rounded-2xl text-sm font-bold outline-none" style={{border:"2px solid #C1A87D"}}>
+                  {profiles.map(p=>{(CHAR_DATA[p.charIdx??0]??CHAR_DATA[0]).icon} {p.name})}
+                
+              
             ))}
-          </div>
+          
           {s1!==s2&&compat&&c1&&c2?(
-            <motion.div initial={{scale:.95,opacity:0}} animate={{scale:1,opacity:1}} className="bg-white rounded-[30px] p-7 text-center shadow-sm" style={{border:"2px solid #C1A87D"}}>
-              <div className="flex justify-center items-center gap-5 mb-6">
+            
+              
                 {[{p:p1,c:c1},{p:p2,c:c2}].map(({p,c},i)=>(
-                  <React.Fragment key={p.id}>
-                    <div className="text-center">
-                      <div className="text-5xl mb-1">{c.icon}</div>
-                      <div className="text-sm font-bold text-gray-600">{p.name}</div>
-                    </div>
-                    {i===0&&<div className="text-4xl text-[#C1A87D]">💖</div>}
-                  </React.Fragment>
+                  
+                    
+                      
+{c.icon}
+                      
+{p.name}
+                    
+                    {i===0&&
+💖
+}
+                  
                 ))}
-              </div>
-              <div className="flex justify-center gap-2 mb-4">
-                {Array.from({length:compat.level},(_,i)=><span key={i} className="text-2xl">💖</span>)}
-              </div>
-              <div className="text-2xl font-black text-[#1C3A33] mb-2">{compat.label}</div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-5">{compat.desc}</p>
-              <div className="grid grid-cols-2 gap-3 text-left">
+              
+              
+                {Array.from({length:compat.level},(_,i)=>💖)}
+              
+              
+{compat.label}
+              
+{compat.desc}
+              
                 {[{p:p1,c:c1},{p:p2,c:c2}].map(({p,c})=>(
-                  <div key={p.id} className="rounded-2xl p-3.5" style={{background:`${c.color}10`}}>
-                    <div className="font-bold text-sm" style={{color:c.color}}>{ELEM_NAME[c.element]}</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">{c.keywords.join(" · ")}</div>
-                  </div>
+                  
+                    
+{ELEM_NAME[c.element]}
+                    
+{c.keywords.join(" · ")}
+                  
                 ))}
-              </div>
-            </motion.div>
+              
+            
           ):(
-            <div className="bg-white rounded-[28px] p-10 text-center text-gray-300">
+            
               {s1===s2?"서로 다른 두 사람을 선택해주세요 😊":"두 사람을 선택해보세요"}
-            </div>
+            
           )}
-        </div>
+        
       )}
-    </motion.div>
+    
   );
 }
 
@@ -1109,34 +1312,34 @@ export default function AuraFriends () {
   const NAV=[{id:"home",icon:"🏠",label:"홈"},{id:"fortune",icon:"⭐",label:"운세"},{id:"friends",icon:"👥",label:"친구"},{id:"match",icon:"💖",label:"궁합"}];
 
   return (
-    <div className="max-w-[430px] mx-auto min-h-screen text-[#2C2115] pb-28 relative bg-white">
-      <AnimatePresence>
-        {packChar&&<PackReveal char={packChar} onClose={()=>setPackChar(null)}/>}
-      </AnimatePresence>
-      <header className="px-5 py-4 flex justify-between items-center sticky top-0 bg-white z-50 border-b">
-        <button onClick={()=>setView("home")} className="text-2xl font-black text-[#1C3A33]">Aura</button>
-        {streak>1&&<motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring"}} className="flex items-center gap-1 text-xs font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-2xl">{lv.icon} {streak}일 연속</motion.div>}
-      </header>
-      <AnimatePresence mode="wait">
-        {view==="home" &&<HomeScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId} onAdd={()=>setView("add")} streak={streak}/>}
-        {view==="add" &&<AddScreen onSave={handleSave} onBack={()=> {setView("home");setEditProfile(null);}} editProfile={editProfile}/>}
-        {view==="fortune" &&<FortuneScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId}/>}
-        {view==="friends" &&<FriendsScreen profiles={profiles} activeId={activeId} onSelect={handleSelect} onDelete={handleDelete} onEdit={handleEdit} onAdd={()=>setView("add")} onImport={handleImport}/>}
-        {view==="match" &&<MatchScreen profiles={profiles}/>}
-      </AnimatePresence>
+    
+      
+        {packChar&&setPackChar(null)}/>}
+      
+      
+        setView("home")} className="text-2xl font-black text-[#1C3A33]">Aura
+        {streak>1&&{lv.icon} {streak}일 연속}
+      
+      
+        {view==="home" &&setView("add")} streak={streak}/>}
+        {view==="add" && {setView("home");setEditProfile(null);}} editProfile={editProfile}/>}
+        {view==="fortune" &&}
+        {view==="friends" &&setView("add")} onImport={handleImport}/>}
+        {view==="match" &&}
+      
       {view!=="add"&&(
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t">
-          <div className="flex justify-around py-2" style={{paddingBottom:"max(8px, env(safe-area-inset-bottom))"}}>
+        
+          
             {NAV.map(n=>{const on=view===n.id;return(
-              <motion.button key={n.id} whileTap={{scale:.88}} onClick={()=>setView(n.id)} className="flex flex-col items-center gap-0.5 py-2 px-3 rounded-2xl" style={{color:on?"#1C3A33":"#c5c5c5"}}>
-                <span className="text-xl">{n.icon}</span>
-                <span className="text-[10px] font-bold">{n.label}</span>
-                {on&&<motion.div layoutId="dot" className="w-1 h-1 rounded-full bg-[#1C3A33]"/>}
-              </motion.button>
+              setView(n.id)} className="flex flex-col items-center gap-0.5 py-2 px-3 rounded-2xl" style={{color:on?"#1C3A33":"#c5c5c5"}}>
+                {n.icon}
+                {n.label}
+                {on&&}
+              
             );})}
-          </div>
-        </nav>
+          
+        
       )}
-    </div>
+    
   );
 }
