@@ -544,17 +544,56 @@ function SyllableRow({syl, idx, selected, onChange}) {
   const [customStrokes,setCustomStrokes] = useState("");
   const [customError,  setCustomError]   = useState("");
 
-  const handleCustomAdd = () => {
-    setCustomError("");
-    const h = customHanja.trim();
-    if (!h) { setCustomError("한자를 입력해주세요"); return; }
-    if (/[\u3131-\uD79D]/.test(h)) { setCustomError("한자(漢字)를 입력해주세요"); return; }
-    const s = customStrokes ? parseInt(customStrokes) : null;
-    if (customStrokes && (isNaN(s)||s<1||s>64)) { setCustomError("획수는 1~64 사이여야 합니다"); return; }
-    if (s) HANJA_STROKES[h] = s;
-    onChange(idx, h);
-    setShowCustom(false); setCustomHanja(""); setCustomStrokes("");
-  };
+  // [수정된 SyllableRow 내부 handleCustomAdd 함수]
+const handleCustomAdd = async () => {
+  setCustomError("");
+  const h = customHanja.trim();
+  
+  if (!h) { 
+    setCustomError("한자를 입력해주세요"); 
+    return; 
+  }
+  
+  // 정규식 수정: 한자 영역(\u4E00-\u9FFF)만 허용하고 한글은 차단
+  const isHanja = /[\u4E00-\u9FFF]/.test(h);
+  if (!isHanja) { 
+    setCustomError("올바른 한자(漢字)를 입력해주세요"); 
+    return; 
+  }
+
+  const s = customStrokes ? parseInt(customStrokes) : null;
+  if (customStrokes && (isNaN(s) || s < 1 || s > 64)) { 
+    setCustomError("획수는 1~64 사이여야 합니다"); 
+    return; 
+  }
+
+  // 로컬 상태 업데이트
+  if (s) HANJA_STROKES[h] = s;
+  onChange(idx, h);
+
+  // ✅ 추가: Supabase DB에 저장 (한자 및 획수 정보 등록)
+  if (supabase) {
+    try {
+      // 해당 음절(syl)의 기존 한자 리스트에 추가하여 저장
+      const existingHanjas = HANJA_DICT[syl] || [];
+      if (!existingHanjas.includes(h)) {
+        const newHanjas = [...existingHanjas, h];
+        const { error } = await supabase
+          .from("hanja")
+          .upsert({ syllable: syl, hanjas: JSON.stringify(newHanjas) });
+        
+        if (!error) HANJA_DICT[syl] = newHanjas;
+      }
+    } catch (e) {
+      console.error("한자 저장 중 오류 발생:", e);
+    }
+  }
+
+  setShowCustom(false); 
+  setCustomHanja(""); 
+  setCustomStrokes("");
+};
+
 
   const isCustomSel = selected && !options.includes(selected);
   return (
