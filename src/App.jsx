@@ -22,7 +22,7 @@ const BRANCH_ELEM = [4,2,0,0,2,1,1,2,3,3,2,4];
 
 function toJDN(year, month, day) {
 let y = year, m = month;
-if (m <= 2) { y-; m += 12; }
+if (m <= 2) { y--; m += 12; }
 const A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
 return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + day + B - 1524;
 }
@@ -49,8 +49,8 @@ if (!timeUnknown) {
 const e = getEffective(year, month, day, hour, minute);
 [ey,em,ed,adjH] = [e.ey, e.em, e.ed, e.adjH];
 }
-const effY   = (em===1 || (em===2 && ed<4)) ? ey-1 : ey;
-const yStem  = ((effY-4)%10+100)%10, yBranch = ((effY-4)%12+120)%12;
+const effY   = (em===1 || (em===2 && ed<4)) ? ey--1 : ey;
+const yStem  = ((effy--4)%10+100)%10, yBranch = ((effy--4)%12+120)%12;
 const mIdx   = getMonthIdx(ey,em,ed);
 const mStem  = ((yStem%5)*2+2+mIdx)%10, mBranch = (mIdx+2)%12;
 const jdn    = toJDN(ey,em,ed);
@@ -511,7 +511,7 @@ if(phase==="show"){const t=setTimeout(()=>setP("done"),1600);return()=>clearTime
 },[phase]);
 return(
 <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-className="fixed inset-0 z-[200] flex items-center justify-center"
+className="fixed inset-0 z-[200] flex items-center justify--center"
 style={{background:"radial-gradient(ellipse at center,#1a1a2e 0%,#0d0d1a 100%)"}}>
 <AnimatePresence mode="wait">
 {phase==="idle"&&<motion.div key="i" exit={{scale:0,opacity:0}} className="text-center cursor-pointer" onClick={()=>setP("crack")}>
@@ -528,12 +528,12 @@ className="text-center px-8">
 <motion.div animate={{y:[0,-12,0]}} transition={{repeat:Infinity,duration:2.8}} className="text-[120px] mb-3">{char.icon}</motion.div>
 <h2 className="text-3xl font-black mb-1" style={{color:char.color,textShadow:`0 0 30px ${char.color}60`}}>{char.name}</h2>
 <p className="text-white/60 text-sm mb-2">{ELEM_NAME[char.element]}</p>
-<div className="flex gap-2 justify-center flex-wrap mb-7">
-{char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1 rounded-full bg-white/15 text-white/80">{k}</span>)}
+<div className="flex gap-2 justify--center flex-wrap mb-7">
+{char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py--1 rounded-full bg-white/15 text-white/80">{k}</span>)}
 </div>
 {phase==="done"&&<motion.button initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:.3}}
 whileTap={{scale:.95}} onClick={onClose}
-className="bg-white font-black px-8 py-3 rounded-full text-base" style={{color:char.color}}>
+className="bg-white font-black px-8 py--3 rounded-full text-base" style={{color:char.color}}>
 내 운명 확인하기 →
 </motion.button>}
 </motion.div>}
@@ -563,19 +563,19 @@ setShowCustom(false);setCustomHanja("");setCustomStrokes("");
 const isCustomSel=selected&&!options.includes(selected);
 return(
 <div>
-<div className="flex items-center justify-between mb-2">
+<div className="flex items-center justify--between mb-2">
 <div className="flex items-center gap-2">
-<div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
+<div className="w-8 h-8 rounded-xl flex items-center justify--center font-bold text-sm flex-shrink-0"
 style={{background:selected?"rgba(28,58,51,.12)":"#f5f5f5",color:selected?"#1C3A33":"#888"}}>{syl}</div>
-<span className="text-xs text-gray-400 font-medium">{options.length>0?`"${syl}"의 한자`:`"${syl}" — 목록 없음`}</span>
+<span className="text-xs text-gray--400 font-medium">{options.length>0?`"${syl}"의 한자`:`"${syl}" — 목록 없음`}</span>
 </div>
 <div className="flex gap-1">
 <button onClick={()=>{setShowCustom(v=>!v);setCustomError("");}}
-className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-1 rounded-full transition-all"
+className="flex items-center gap-0.5 text-[10px] font-bold px-2 py--1 rounded-full transition-all"
 style={{background:showCustom?"rgba(28,58,51,.12)":"#f5f5f5",color:showCustom?"#1C3A33":"#aaa"}}>
  직접 입력
 </button>
-{selected&&<button onClick={()=>onChange(idx,"")} className="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-full font-bold">지우기</button>}
+{selected&&<button onClick={()=>onChange(idx,"")} className="text-[10px] text-gray--400 bg-gray--100 px-2 py--1 rounded-full font-bold">지우기</button>}
 </div>
 </div>
 {options.length>0&&(
@@ -585,9 +585,9 @@ const strokes=HANJA_STROKES[hanja],isSel=selected===hanja;
 return(
 <motion.button key={hanja} whileTap={{scale:.88}}
 onClick={()=>onChange(idx,isSel?"":hanja)}
-className="flex flex-col items-center px-3 py-2 rounded-2xl border-2 transition-all relative"
+className="flex flex-col items-center px-3 py--2 rounded-2xl border-2 transition-all relative"
 style={{background:isSel?"#1C3A33":"white",borderColor:isSel?"#1C3A33":"#e5e5e5",color:isSel?"white":"#333"}}>
-{isSel&&<div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center"><Check size={9} color="white"/></div>}
+{isSel&&<div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify--center"><Check size={9} color="white"/></div>}
 <span className="text-xl leading-none font-bold">{hanja}</span>
 {strokes&&<span className="text-[9px] mt-0.5" style={{color:isSel?"rgba(255,255,255,.65)":"#bbb"}}>{strokes}획</span>}
 </motion.button>
@@ -597,44 +597,44 @@ style={{background:isSel?"#1C3A33":"white",borderColor:isSel?"#1C3A33":"#e5e5e5"
 )}
 {isCustomSel&&(
 <motion.div initial={{opacity:0,scale:.9}} animate={{opacity:1,scale:1}}
-className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl mb-2"
+className="inline-flex items-center gap-2 px-3 py--2 rounded-2xl mb-2"
 style={{background:"rgba(28,58,51,.1)",border:"1.5px solid rgba(28,58,51,.2)"}}>
 <span className="text-xl font-black text-[#1C3A33]">{selected}</span>
-<span className="text-[10px] font-bold text-gray-500">직접 입력됨</span>
-{HANJA_STROKES[selected]&&<span className="text-[10px] text-gray-400">{HANJA_STROKES[selected]}획</span>}
-<button onClick={()=>onChange(idx,"")} className="text-gray-400 ml-1 text-sm leading-none">×</button>
+<span className="text-[10px] font-bold text-gray--500">직접 입력됨</span>
+{HANJA_STROKES[selected]&&<span className="text-[10px] text-gray--400">{HANJA_STROKES[selected]}획</span>}
+<button onClick={()=>onChange(idx,"")} className="text-gray--400 ml-1 text-sm leading-none">×</button>
 </motion.div>
 )}
 <AnimatePresence>
 {showCustom&&(
 <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}} className="overflow-hidden">
-<div className="rounded-2xl p-4 space-y-3 mt-1" style={{background:"rgba(28,58,51,.04)",border:"1.5px solid rgba(28,58,51,.1)"}}>
-<p className="text-[11px] font-bold text-gray-500"> "{syl}"에 해당하는 한자를 직접 입력하세요</p>
+<div className="rounded-2xl p-4 space-y--3 mt-1" style={{background:"rgba(28,58,51,.04)",border:"1.5px solid rgba(28,58,51,.1)"}}>
+<p className="text-[11px] font-bold text-gray--500"> "{syl}"에 해당하는 한자를 직접 입력하세요</p>
 <div className="flex gap-2">
 <div className="flex-1">
-<label className="text-[10px] text-gray-400 block mb-1 font-bold">한자 (1글자)</label>
+<label className="text-[10px] text-gray--400 block mb-1 font-bold">한자 (1글자)</label>
 <input type="text" value={customHanja} maxLength={1} placeholder="漢"
 onChange={e=>setCustomHanja(e.target.value.slice(0,1))}
-className="w-full text-center text-2xl font-black rounded-xl py-2 outline-none"
+className="w-full text-center text-2xl font-black rounded-xl py--2 outline-none"
 style={{border:"1.5px solid #ddd",color:"#1C3A33",background:"white"}}/>
 </div>
 <div style={{width:80}}>
-<label className="text-[10px] text-gray-400 block mb-1 font-bold">획수 (선택)</label>
+<label className="text-[10px] text-gray--400 block mb-1 font-bold">획수 (선택)</label>
 <input type="number" value={customStrokes} placeholder="예) 8" min={1} max={64}
 onChange={e=>setCustomStrokes(e.target.value)}
-className="w-full text-center text-lg font-bold rounded-xl py-2 outline-none"
+className="w-full text-center text-lg font-bold rounded-xl py--2 outline-none"
 style={{border:"1.5px solid #ddd",background:"white"}}/>
 </div>
 <div className="flex items-end">
 <button onClick={handleCustomAdd}
-className="px-4 py-2 rounded-xl font-black text-sm text-white flex items-center gap-1 active:scale-95 transition-transform"
+className="px-4 py--2 rounded-xl font-black text-sm text-white flex items-center gap-1 active:scale-95 transition-transform"
 style={{background:"#1C3A33"}}>
 <Plus size={13}/> 추가
 </button>
 </div>
 </div>
 {customError&&<motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs text-red-500 font-bold"> {customError}</motion.p>}
-<p className="text-[10px] text-gray-400 leading-relaxed">예) 勳 / 획수 16 — 획수를 모르면 빈칸으로 두셔도 됩니다</p>
+<p className="text-[10px] text-gray--400 leading-relaxed">예) 勳 / 획수 16 — 획수를 모르면 빈칸으로 두셔도 됩니다</p>
 </div>
 </motion.div>
 )}
@@ -647,19 +647,19 @@ function HanjaPicker({name,selections,onChange}) {
 if(!name?.trim()) return null;
 const syllables=name.trim().split("");
 return(
-<motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y-4">
-<div className="flex items-center justify-between">
-<label className="text-xs font-bold text-gray-500">한자 이름 선택 (선택사항)</label>
-<span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+<motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y--4">
+<div className="flex items-center justify--between">
+<label className="text-xs font-bold text-gray--500">한자 이름 선택 (선택사항)</label>
+<span className="text-[10px] text-gray--400 bg-gray--100 px-2 py--1 rounded-full">
 {syllables.filter((*,i)=>selections[i]).length}/{syllables.length} 선택됨
 </span>
 </div>
 {syllables.some((*,i)=>selections[i])&&(
-<div className="text-center py-3 rounded-2xl" style={{background:"rgba(28,58,51,.05)",border:"1px solid rgba(28,58,51,.12)"}}>
-<div className="flex justify-center gap-1 items-baseline">
+<div className="text-center py--3 rounded-2xl" style={{background:"rgba(28,58,51,.05)",border:"1px solid rgba(28,58,51,.12)"}}>
+<div className="flex justify--center gap-1 items-baseline">
 {syllables.map((syl,i)=><span key={i} className="font-black text-xl text-[#1C3A33]">{selections[i]||syl}</span>)}
 </div>
-<p className="text-[10px] text-gray-400 mt-1">한자 이름 미리보기</p>
+<p className="text-[10px] text-gray--400 mt-1">한자 이름 미리보기</p>
 </div>
 )}
 {syllables.map((syl,idx)=><SyllableRow key={idx} syl={syl} idx={idx} selected={selections[idx]||""} onChange={onChange}/>)}
@@ -689,23 +689,23 @@ return(
 <motion.div initial={{scale:.9,opacity:0}} animate={{scale:1,opacity:1}} transition={{type:"spring",damping:15}}
 className="rounded-[40px] p-8 text-center shadow-xl relative overflow-hidden"
 style={{background:`linear-gradient(145deg,${char.bg},white)`,border:`2px solid ${char.color}20`}}>
-<div className="absolute bottom-3 right-5 text-[80px] opacity-[0.06] pointer-events-none">{char.icon}</div>
+<div className="absolute bottom-3 right-5 text-[80px] opacity--[0.06] pointer-events-none">{char.icon}</div>
 <motion.div animate={{y:[0,-8,0]}} transition={{repeat:Infinity,duration:3.5}} className="text-[96px] mb-4 leading-none">{char.icon}</motion.div>
 <h2 className="text-3xl font-black text-[#1C3A33] mb-0.5">{profile.name}</h2>
 {hanjaDisplay&&<motion.div initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} className="text-lg font-bold mb-1 tracking-widest" style={{color:char.color}}>{hanjaDisplay}</motion.div>}
 <p className="text-base font-bold mb-3" style={{color:char.color}}>{char.name}</p>
-<div className="flex justify-center gap-2 flex-wrap mb-3">
-<span className="text-xs font-black px-3 py-1.5 rounded-full text-white" style={{backgroundColor:char.color}}>{ELEM_NAME[char.element]}</span>
-{char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1.5 rounded-full bg-white/70" style={{color:char.color}}>{k}</span>)}
+<div className="flex justify--center gap-2 flex-wrap mb-3">
+<span className="text-xs font-black px-3 py--1.5 rounded-full text-white" style={{backgroundColor:char.color}}>{ELEM_NAME[char.element]}</span>
+{char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py--1.5 rounded-full bg-white/70" style={{color:char.color}}>{k}</span>)}
 </div>
-<div className="flex justify-center mb-4">
-<div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-black text-xs"
+<div className="flex justify--center mb-4">
+<div className="inline-flex items-center gap-1.5 px-3 py--1.5 rounded-full font-black text-xs"
 style={{background:`${char.color}15`,border:`1.5px solid ${char.color}30`,color:char.color}}>
 {lv.icon} {lv.rank} {lv.name}
 </div>
 </div>
 <motion.button whileTap={{scale:.93}} onClick={handleShare}
-className="flex items-center gap-2 mx-auto px-5 py-2.5 rounded-2xl font-bold text-sm bg-white shadow-sm"
+className="flex items-center gap-2 mx-auto px-5 py--2.5 rounded-2xl font-bold text-sm bg-white shadow-sm"
 style={{color:char.color,border:`1.5px solid ${char.color}30`}}>
 {copied?<><Check size={14}/> 복사됨!</>:<><Share2 size={14}/> 공유하기</>}
 </motion.button>
@@ -721,16 +721,16 @@ const today=todayStr();
 const cats=getSajuCats(profile,today);
 const items=[{label:"연애운",key:"love",icon:"",color:"#e91e63"},{label:"직업운",key:"career",icon:"",color:"#1976d2"},{label:"건강운",key:"health",icon:"",color:"#388e3c"},{label:"재물운",key:"money",icon:"",color:"#f57f17"}];
 return(
-<div className="space-y-3">
+<div className="space-y--3">
 {items.map(({label,key,icon,color})=>{
 const val=cats[key];
 return(
 <div key={key}>
-<div className="flex justify-between items-center mb-1.5">
+<div className="flex justify--between items-center mb-1.5">
 <div className="flex items-center gap-1.5 font-bold text-xs" style={{color}}><span>{icon}</span>{label}</div>
 <span className="text-xs font-black" style={{color}}>{val>=85?"":val>=75?"":val>=65?"":""} {val}점</span>
 </div>
-<div className="h-2.5 rounded-full bg-gray-100 overflow-hidden"><AnimBar val={val} color={color}/></div>
+<div className="h-2.5 rounded-full bg-gray--100 overflow-hidden"><AnimBar val={val} color={color}/></div>
 </div>
 );
 })}
@@ -752,22 +752,22 @@ className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #f
 <div className="flex items-center gap-2 mb-4">
 <Sun size={17} color="#c0550a"/>
 <span className="font-bold text-[#1C3A33] text-[15px]">오늘의 아우라 ({today})</span>
-<span className="text-[10px] text-gray-400 ml-auto">{STEMS[todayStem]}{BRANCHES[todayBranch]}일</span>
+<span className="text-[10px] text-gray--400 ml-auto">{STEMS[todayStem]}{BRANCHES[todayBranch]}일</span>
 </div>
 <div className="flex items-center gap-4 mb-5">
 <ScoreRing score={score} color={char.color} size={64}/>
 <div className="flex-1">
-<div className="font-bold text-gray-800 text-[15px]">{summary}</div>
-<div className="text-sm text-gray-500 mt-1">오늘 {STEMS[todayStem]}일 ↔ 내 일간 {STEMS[profile.saju?.dStem??0]}의 오행 관계</div>
+<div className="font-bold text-gray--800 text-[15px]">{summary}</div>
+<div className="text-sm text-gray--500 mt-1">오늘 {STEMS[todayStem]}일 ↔ 내 일간 {STEMS[profile.saju?.dStem??0]}의 오행 관계</div>
 </div>
 </div>
 <div className="mb-5">
-<p className="text-xs font-bold text-gray-400 mb-3"> 분야별 오늘의 운세</p>
+<p className="text-xs font-bold text-gray--400 mb-3"> 분야별 오늘의 운세</p>
 <CategoryFortune profile={profile} char={char}/>
 </div>
 <div className="rounded-2xl p-4" style={{background:`${char.color}0d`}}>
 <p className="text-[10px] font-black mb-1.5" style={{color:char.color}}>✦ 오늘의 행운 미션</p>
-<p className="text-[13px] text-gray-700 leading-relaxed">{mission}</p>
+<p className="text-[13px] text-gray--700 leading-relaxed">{mission}</p>
 </div>
 </motion.div>
 );
@@ -784,13 +784,13 @@ return(
 <motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}} exit={{opacity:0,y:40}}
 className="fixed inset-0 z-[300] flex items-end bg-black/60" onClick={onClose}>
 <motion.div onClick={e=>e.stopPropagation()} className="bg-white w-full rounded-t-[32px] p-6 max-h-[85vh] overflow-auto">
-<div className="flex justify-between items-center mb-4">
+<div className="flex justify--between items-center mb-4">
 <h3 className="text-xl font-black text-[#1C3A33]">{dateStr} ({STEMS[ts]}{BRANCHES[tb]}일)</h3>
-<button onClick={onClose} className="text-gray-400 text-3xl leading-none">×</button>
+<button onClick={onClose} className="text-gray--400 text-3xl leading-none">×</button>
 </div>
-<div className="text-center py-3 mb-4 rounded-2xl bg-gray-50">
+<div className="text-center py--3 mb-4 rounded-2xl bg-gray--50">
 <div className="text-5xl font-black text-[#1C3A33]">{score}점</div>
-<div className="text-sm text-gray-500 mt-1">{summary}</div>
+<div className="text-sm text-gray--500 mt-1">{summary}</div>
 </div>
 <div className="grid grid-cols-2 gap-3 mb-4">
 {[["연애운","love","","#e91e63"],["직업운","career","","#1976d2"],
@@ -804,9 +804,9 @@ className="fixed inset-0 z-[300] flex items-end bg-black/60" onClick={onClose}>
 </div>
 <div className="rounded-2xl bg-emerald-50 p-4 text-center mb-4">
 <p className="text-emerald-700 text-xs font-black mb-1">✦ 행운 미션</p>
-<p className="text-gray-700 text-sm">{mission}</p>
+<p className="text-gray--700 text-sm">{mission}</p>
 </div>
-<button onClick={onClose} className="w-full py-4 rounded-3xl font-black text-white active:scale-95 transition-transform"
+<button onClick={onClose} className="w-full py--4 rounded-3xl font-black text-white active:scale-95 transition-transform"
 style={{background:"linear-gradient(135deg,#1C3A33,#2d5a4a)"}}>닫기</button>
 </motion.div>
 </motion.div>
@@ -822,14 +822,14 @@ const cal=useMemo(()=>getSajuCalendar(profile,year,month),[profile.id,year,month
 return(
 <>
 <div className="bg-white rounded-[30px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-<div className="flex justify-between items-center mb-3">
+<div className="flex justify--between items-center mb-3">
 <div className="font-bold text-[#1C3A33] flex items-center gap-1.5"><Calendar size={16}/> {month}월 캘린더 (사주 기반)</div>
-<div className="flex gap-2 text-[10px] text-gray-400">
+<div className="flex gap-2 text-[10px] text-gray--400">
 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"/>길일</span>
 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-300 inline-block"/>흉일</span>
 </div>
 </div>
-<div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray-400 mb-1.5">
+<div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray--400 mb-1.5">
 {["일","월","화","수","목","금","토"].map(d=><div key={d}>{d}</div>)}
 </div>
 <div className="grid grid-cols-7 gap-1">
@@ -841,7 +841,7 @@ const border=isT?`2px solid ${char.color}`:isG?"1px solid #86efac":isB?"1px soli
 const color=isT?"#1C3A33":isG?"#166534":isB?"#991b1b":"#555";
 return(
 <motion.button key={i} whileTap={{scale:.88}} onClick={()=>setSel(d)}
-className="h-10 rounded-2xl flex items-center justify-center text-[11px] font-bold relative"
+className="h-10 rounded-2xl flex items-center justify--center text-[11px] font-bold relative"
 style={{backgroundColor:bg,color,border}}>
 {d}
 {isG&&<span className="absolute top-0.5 right-0.5 text-[8px]"></span>}
@@ -850,9 +850,9 @@ style={{backgroundColor:bg,color,border}}>
 );
 })}
 </div>
-<div className="mt-3 pt-3 border-t border-gray-50 grid grid-cols-2 gap-2">
-{[…cal.good].slice(0,1).map(d=><div key={d} className="text-center"><div className="text-[10px] text-gray-400">이달 최고</div><div className="font-black text-sm text-emerald-600">{d}일 ({cal.scores[d-1]}점)</div></div>)}
-{[…cal.bad].slice(-1).map(d=><div key={d} className="text-center"><div className="text-[10px] text-gray-400">이달 최저</div><div className="font-black text-sm text-red-400">{d}일 ({cal.scores[d-1]}점)</div></div>)}
+<div className="mt-3 pt-3 border-t border-gray--50 grid grid-cols-2 gap-2">
+{[…cal.good].slice(0,1).map(d=><div key={d} className="text-center"><div className="text-[10px] text-gray--400">이달 최고</div><div className="font-black text-sm text-emerald-600">{d}일 ({cal.scores[d-1]}점)</div></div>)}
+{[…cal.bad].slice(-1).map(d=><div key={d} className="text-center"><div className="text-[10px] text-gray--400">이달 최저</div><div className="font-black text-sm text-red-400">{d}일 ({cal.scores[d-1]}점)</div></div>)}
 </div>
 </div>
 <AnimatePresence>
@@ -873,7 +873,7 @@ className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #f
 <div key={x.label} className="rounded-2xl p-3.5" style={{background:`${char.color}0a`,border:`1px solid ${char.color}18`}}>
 <div className="text-xl mb-1 leading-none">{x.icon}</div>
 <div className="text-[10px] font-bold mb-0.5" style={{color:`${char.color}99`}}>{x.label}</div>
-<div className="text-[12px] font-semibold text-gray-700">{x.value}</div>
+<div className="text-[12px] font-semibold text-gray--700">{x.value}</div>
 </div>
 ))}
 </div>
@@ -896,25 +896,25 @@ return(
 const c=CHAR_DATA[x.charIdx??0]??CHAR_DATA[0],on=x.id===activeId;
 return(
 <motion.button key={x.id} whileTap={{scale:.95}} onClick={()=>setActiveId(x.id)}
-className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold"
+className="flex-shrink-0 flex items-center gap-1.5 px-3 py--2 rounded-2xl bg-white text-sm font-bold"
 style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
 <span className="text-base">{c.icon}</span>{x.name}
 </motion.button>
 );
 })}
 <motion.button whileTap={{scale:.95}} onClick={onAdd}
-className="flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-2xl bg-white border-2 border-dashed border-gray-200 text-gray-300 text-sm font-bold">
+className="flex-shrink-0 flex items-center gap-1 px-3 py--2 rounded-2xl bg-white border-2 border-dashed border-gray--200 text-gray--300 text-sm font-bold">
 <Plus size={13}/> 추가
 </motion.button>
 </div>
 )}
 {p&&char?(
-<div className="space-y-4">
+<div className="space-y--4">
 <CharCard profile={p} char={char} streak={streak}/>
 <div className="bg-white rounded-[28px] p-1 flex" style={{border:"1.5px solid #f0f0f0"}}>
 {["daily","monthly"].map((t,i)=>(
 <button key={t} onClick={()=>setTab(t)}
-className={`flex-1 py-2.5 rounded-3xl text-sm font-bold transition-all ${tab===t?"text-white shadow":"text-gray-400"}`}
+className={`flex-1 py--2.5 rounded-3xl text-sm font-bold transition-all ${tab===t?"text-white shadow":"text-gray--400"}`}
 style={{background:tab===t?"#1C3A33":"transparent"}}>
 {["일별 운세","월별 운세"][i]}
 </button>
@@ -924,14 +924,14 @@ style={{background:tab===t?"#1C3A33":"transparent"}}>
 <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.28}}
 className="bg-white rounded-[28px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
 <div className="flex items-center gap-2 mb-2.5"><Sparkles size={16} color="#c0550a"/><span className="font-bold text-[#1C3A33] text-[15px]">나는 왜 이 동물?</span></div>
-<p className="text-gray-600 text-sm leading-relaxed">{char.rationale}</p>
+<p className="text-gray--600 text-sm leading-relaxed">{char.rationale}</p>
 </motion.div>
 <div className="grid grid-cols-2 gap-3">
 {[{title:"대운 흐름",color:"#BF6100",Icon:Award,text:char.luckTrend},{title:"주의할 점",color:"#C62828",Icon:Zap,text:char.caution}].map((x,i)=>(
 <motion.div key={x.title} initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.32+i*.06}}
 className="bg-white rounded-[22px] p-4 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
 <div className="font-bold text-xs mb-2 flex items-center gap-1.5" style={{color:x.color}}><x.Icon size={13}/>{x.title}</div>
-<p className="text-xs text-gray-600 leading-relaxed">{x.text}</p>
+<p className="text-xs text-gray--600 leading-relaxed">{x.text}</p>
 </motion.div>
 ))}
 </div>
@@ -939,11 +939,11 @@ className="bg-white rounded-[22px] p-4 shadow-sm" style={{border:"1.5px solid #f
 </div>
 ):(
 <motion.div initial={{scale:.95,opacity:0}} animate={{scale:1,opacity:1}} onClick={onAdd}
-className="text-center py-20 bg-white rounded-[40px] cursor-pointer" style={{border:"2.5px dashed #e5e5e5"}}>
+className="text-center py--20 bg-white rounded-[40px] cursor-pointer" style={{border:"2.5px dashed #e5e5e5"}}>
 <div className="text-7xl mb-4"></div>
-<p className="font-bold text-gray-400 text-lg">내 아우라를 찾아보세요</p>
-<p className="text-sm text-gray-300 mt-1">생년월일을 입력하면 120가지 동물 중 나만의 동물이 탄생해요</p>
-<div className="mt-6 inline-flex items-center gap-2 bg-[#1C3A33] text-white px-5 py-2.5 rounded-full font-bold text-sm"><Plus size={14}/> 시작하기</div>
+<p className="font-bold text-gray--400 text-lg">내 아우라를 찾아보세요</p>
+<p className="text-sm text-gray--300 mt-1">생년월일을 입력하면 120가지 동물 중 나만의 동물이 탄생해요</p>
+<div className="mt-6 inline-flex items-center gap-2 bg-[#1C3A33] text-white px-5 py--2.5 rounded-full font-bold text-sm"><Plus size={14}/> 시작하기</div>
 </motion.div>
 )}
 </motion.div>
@@ -967,8 +967,8 @@ return getNameFortune(p.name.trim().split(""),p.hanjaSelections??{});
 
 if(!p||!char) return(
 <motion.div key="fortune" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-className="p-5 text-center py-24 text-gray-300">
-<Star size={48} className="mx-auto mb-4 opacity-30"/>
+className="p-5 text-center py--24 text-gray--300">
+<Star size={48} className="mx-auto mb-4 opacity--30"/>
 <p className="font-bold">프로필을 먼저 등록해주세요</p>
 </motion.div>
 );
@@ -978,7 +978,7 @@ return(
 <div className="flex gap-2 overflow-x-auto pb-3 mb-2" style={{scrollbarWidth:"none"}}>
 {profiles.map(x=>{const c=CHAR_DATA[x.charIdx??0]??CHAR_DATA[0],on=x.id===activeId;return(
 <motion.button key={x.id} whileTap={{scale:.95}} onClick={()=>setActiveId(x.id)}
-className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white text-sm font-bold"
+className="flex-shrink-0 flex items-center gap-1.5 px-3 py--2 rounded-2xl bg-white text-sm font-bold"
 style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
 <span>{c.icon}</span>{x.name}
 </motion.button>
@@ -988,59 +988,59 @@ style={{border:`2px solid ${on?c.color:"#f0f0f0"}`,color:on?c.color:"#aaa"}}>
 <div className="grid grid-cols-4 gap-1 bg-white rounded-2xl p-1 mb-4" style={{border:"1.5px solid #f0f0f0"}}>
 {[{id:"radar",label:"오행"},{id:"cat",label:"분야별"},{id:"saju",label:"사주"},{id:"name",label:"성명학"}].map(t=>(
 <button key={t.id} onClick={()=>setTab(t.id)}
-className={`py-2 rounded-xl text-xs font-bold transition-all ${tab===t.id?"text-white shadow":"text-gray-400"}`}
+className={`py--2 rounded-xl text-xs font-bold transition-all ${tab===t.id?"text-white shadow":"text-gray--400"}`}
 style={{background:tab===t.id?char.color:"transparent"}}>{t.label}</button>
 ))}
 </div>
 <AnimatePresence mode="wait">
 {tab==="radar"&&(
-<motion.div key="radar" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y-4">
+<motion.div key="radar" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y--4">
 <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
 <div className="text-center font-bold text-[#1C3A33] mb-1">오행(五行) 에너지 레이더</div>
-<p className="text-[11px] text-gray-400 text-center mb-4">내 원국 오행 분포 + 오늘 기운 반영</p>
-<div className="flex justify-center"><ElementRadar profile={p} dateStr={today}/></div>
+<p className="text-[11px] text-gray--400 text-center mb-4">내 원국 오행 분포 + 오늘 기운 반영</p>
+<div className="flex justify--center"><ElementRadar profile={p} dateStr={today}/></div>
 <div className="grid grid-cols-5 gap-1 mt-3">
 {["목","화","토","금","수"].map((el,i)=>(
 <div key={el} className="text-center">
 <div className="text-base">{["","","","",""][i]}</div>
 <div className="text-[10px] font-bold mt-0.5" style={{color:ELEM_COLOR[i]}}>{el}</div>
-<div className="text-[10px] text-gray-400">{getSajuElemScores(p,today)[i]}</div>
+<div className="text-[10px] text-gray--400">{getSajuElemScores(p,today)[i]}</div>
 </div>
 ))}
 </div>
 </div>
 {/* 사자성어 */}
 <div className="rounded-[24px] p-5" style={{background:char.bg,border:`1.5px solid ${char.color}20`}}>
-<div className="flex items-center gap-2 mb-3"><span></span><span className="font-bold text-[13px] text-gray-500">오늘의 사자성어 (일주 기반)</span></div>
+<div className="flex items-center gap-2 mb-3"><span></span><span className="font-bold text-[13px] text-gray--500">오늘의 사자성어 (일주 기반)</span></div>
 <div className="text-center mb-2"><span className="font-black text-3xl tracking-[.2em]" style={{color:char.color}}>{idiom.text}</span></div>
-<div className="text-center text-xs text-gray-400 mb-2">({idiom.reading})</div>
-<p className="text-[13px] text-gray-600 leading-relaxed text-center">{idiom.meaning}</p>
+<div className="text-center text-xs text-gray--400 mb-2">({idiom.reading})</div>
+<p className="text-[13px] text-gray--600 leading-relaxed text-center">{idiom.meaning}</p>
 </div>
 {/* D-day */}
 {bd&&(
 <div className="rounded-[24px] p-5 bg-white" style={{border:`1.5px solid ${char.color}20`}}>
-<div className="flex items-center justify-between">
-<div className="flex items-center gap-2"><Gift size={16} color={char.color}/><span className="font-bold text-[13px] text-gray-500">다음 생일까지</span></div>
+<div className="flex items-center justify--between">
+<div className="flex items-center gap-2"><Gift size={16} color={char.color}/><span className="font-bold text-[13px] text-gray--500">다음 생일까지</span></div>
 <motion.div animate={{scale:[1,1.1,1]}} transition={{repeat:Infinity,duration:2.5}}
 className="font-black text-2xl" style={{color:char.color}}>
 {bd.isToday?" 오늘!":`D-${bd.days}`}
 </motion.div>
 </div>
-<p className="text-[11px] text-gray-400 mt-1.5">{bd.isToday?"생일 축하드려요! 오늘은 특별한 행운이 가득해요 ":`앞으로 ${bd.days}일 후 ${p.m}월 ${p.d}일 생일이에요`}</p>
+<p className="text-[11px] text-gray--400 mt-1.5">{bd.isToday?"생일 축하드려요! 오늘은 특별한 행운이 가득해요 ":`앞으로 ${bd.days}일 후 ${p.m}월 ${p.d}일 생일이에요`}</p>
 </div>
 )}
 </motion.div>
 )}
 {tab==="cat"&&(
-<motion.div key="cat" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y-4">
+<motion.div key="cat" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y--4">
 <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
 <div className="font-bold text-[#1C3A33] mb-1">분야별 오늘의 운세</div>
-<p className="text-[11px] text-gray-400 mb-5">오늘 일주({(() => {const jdn=getTodayJdn(today);return STEMS[(jdn+49)%10]+BRANCHES[(jdn+49)%12];})()})와 내 사주의 오행 관계 분석</p>
+<p className="text-[11px] text-gray--400 mb-5">오늘 일주({(() => {const jdn=getTodayJdn(today);return STEMS[(jdn+49)%10]+BRANCHES[(jdn+49)%12];})()})와 내 사주의 오행 관계 분석</p>
 <CategoryFortune profile={p} char={char}/>
 </div>
 <div className="rounded-[24px] p-5" style={{background:char.bg,border:`1.5px solid ${char.color}20`}}>
 <p className="text-xs font-black mb-2" style={{color:char.color}}>✦ {ELEM_NAME[char.element]}이 강한 당신에게</p>
-<p className="text-sm text-gray-600 leading-relaxed">
+<p className="text-sm text-gray--600 leading-relaxed">
 {char.element===0&&"목(木) 기운이 강한 날에는 새로운 시작, 창의적인 프로젝트, 인간관계 확장에 좋습니다."}
 {char.element===1&&"화(火) 기운이 강한 날에는 발표, 리더십 발휘, 창작 활동에 최고의 에너지를 발휘합니다."}
 {char.element===2&&"토(土) 기운이 강한 날에는 계약, 장기 계획 수립에 안정적인 기운이 뒷받침됩니다."}
@@ -1049,13 +1049,13 @@ className="font-black text-2xl" style={{color:char.color}}>
 </p>
 </div>
 <div className="bg-white rounded-[24px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-<p className="text-xs font-bold text-gray-400 mb-3"> 아우라 레벨 가이드</p>
-<div className="space-y-2.5">
+<p className="text-xs font-bold text-gray--400 mb-3"> 아우라 레벨 가이드</p>
+<div className="space-y--2.5">
 {LEVELS.map(l=>(
 <div key={l.name} className="flex items-center gap-3">
 <span className="text-xl w-7 text-center">{l.icon}</span>
 <div className="flex-1">
-<div className="flex justify-between text-xs"><span className="font-bold text-gray-700">{l.rank} {l.name}</span><span className="text-gray-400">{l.min}일+ 연속</span></div>
+<div className="flex justify--between text-xs"><span className="font-bold text-gray--700">{l.rank} {l.name}</span><span className="text-gray--400">{l.min}일+ 연속</span></div>
 </div>
 </div>
 ))}
@@ -1064,29 +1064,29 @@ className="font-black text-2xl" style={{color:char.color}}>
 </motion.div>
 )}
 {tab==="saju"&&(
-<motion.div key="saju" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y-4">
+<motion.div key="saju" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y--4">
 {(() => {
 const saju=p.saju??calcSaju(+p.y,+p.m,+p.d,+(p.h??12),+(p.mi??0),p.timeUnknown);
 const pillars=[{label:"年柱",stem:saju.yStem,branch:saju.yBranch},{label:"月柱",stem:saju.mStem,branch:saju.mBranch},{label:"日柱",stem:saju.dStem,branch:saju.dBranch,hi:true},{label:"時柱",stem:saju.hStem,branch:saju.hBranch}];
 return(
 <div className="bg-white rounded-[24px] p-5 shadow-sm" style={{border:`1.5px solid ${char.color}20`}}>
-<div className="flex items-center gap-2 mb-4"><span></span><span className="font-bold text-[13px] text-gray-500">사주 원국 (四柱八字)</span></div>
+<div className="flex items-center gap-2 mb-4"><span></span><span className="font-bold text-[13px] text-gray--500">사주 원국 (四柱八字)</span></div>
 <div className="grid grid-cols-4 gap-2 text-center">
 {pillars.map((pp,i)=>(
-<div key={i} className="rounded-2xl py-3 px-1"
+<div key={i} className="rounded-2xl py--3 px-1"
 style={{background:pp.hi?`${char.color}15`:"#fafafa",border:pp.hi?`2px solid ${char.color}40`:"1.5px solid #f0f0f0"}}>
-<div className="text-[10px] text-gray-400 mb-1 font-bold">{pp.label}</div>
+<div className="text-[10px] text-gray--400 mb-1 font-bold">{pp.label}</div>
 {pp.stem!=null&&pp.stem!==undefined?(
 <>
 <div className="font-black text-[22px] leading-tight" style={{color:pp.hi?char.color:"#333"}}>{STEMS[pp.stem]}</div>
-<div className="font-black text-[22px] leading-tight text-gray-600">{BRANCHES[pp.branch]}</div>
-<div className="text-[9px] text-gray-400 mt-1">{STEMS_KO[pp.stem]}{BRANCHES_KO[pp.branch]}</div>
+<div className="font-black text-[22px] leading-tight text-gray--600">{BRANCHES[pp.branch]}</div>
+<div className="text-[9px] text-gray--400 mt-1">{STEMS_KO[pp.stem]}{BRANCHES_KO[pp.branch]}</div>
 </>
-):<div className="text-gray-300 text-xs pt-2">미입력</div>}
+):<div className="text-gray--300 text-xs pt-2">미입력</div>}
 </div>
 ))}
 </div>
-<div className="mt-3 text-center text-[10px] text-gray-400">
+<div className="mt-3 text-center text-[10px] text-gray--400">
 일주 {STEMS[saju.dStem]}{BRANCHES[saju.dBranch]}({STEMS_KO[saju.dStem]}{BRANCHES_KO[saju.dBranch]}) · 동물인덱스 {p.charIdx}({p.charIdx%2===0?"낮":"밤"}) → {char.name}
 </div>
 </div>
@@ -1095,21 +1095,21 @@ style={{background:pp.hi?`${char.color}15`:"#fafafa",border:pp.hi?`2px solid ${c
 </motion.div>
 )}
 {tab==="name"&&(
-<motion.div key="name" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y-4">
+<motion.div key="name" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="space-y--4">
 {nameFortune?(
 <>
 <div className="bg-white rounded-[28px] p-6 shadow-sm" style={{border:`1.5px solid ${char.color}20`}}>
-<div className="flex items-center gap-2 mb-4"><span></span><span className="font-bold text-[13px] text-gray-500">성명학(姓名學) 분석</span></div>
-<div className="flex justify-center gap-3 mb-4 flex-wrap">
+<div className="flex items-center gap-2 mb-4"><span></span><span className="font-bold text-[13px] text-gray--500">성명학(姓名學) 분석</span></div>
+<div className="flex justify--center gap-3 mb-4 flex-wrap">
 {nameFortune.details.map((d,i)=>(
 <div key={i} className="text-center">
-<div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl mb-1"
+<div className="w-14 h-14 rounded-2xl flex items-center justify--center font-black text-2xl mb-1"
 style={{background:d.hanja?`${char.color}15`:"#f5f5f5"}}>{d.hanja||d.syl}</div>
-<div className="text-[9px] text-gray-400">{d.hanja?`${d.strokes??"?"}획`:d.syl}</div>
+<div className="text-[9px] text-gray--400">{d.hanja?`${d.strokes??"?"}획`:d.syl}</div>
 </div>
 ))}
 <div className="text-center">
-<div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black mb-1 bg-[#1C3A33]/10">
+<div className="w-14 h-14 rounded-2xl flex items-center justify--center font-black mb-1 bg-[#1C3A33]/10">
 <span className="text-sm font-black text-[#1C3A33]">{nameFortune.total}</span>
 </div>
 <div className="text-[9px] font-bold text-[#1C3A33]">총획</div>
@@ -1120,20 +1120,20 @@ style={{background:d.hanja?`${char.color}15`:"#f5f5f5"}}>{d.hanja||d.syl}</div>
 <span className="text-xl">{nameFortune.fortune.icon}</span>
 <span className="font-black text-sm" style={{color:ELEM_COLOR[nameFortune.elem]}}>{nameFortune.fortune.title}</span>
 </div>
-<p className="text-xs text-gray-600 leading-relaxed">{nameFortune.fortune.desc}</p>
+<p className="text-xs text-gray--600 leading-relaxed">{nameFortune.fortune.desc}</p>
 </div>
 {(()=>{
 const h=getNameHarmony(char.element,nameFortune.elem);
 return(
 <div className="rounded-2xl p-4" style={{background:`${h.color}10`,border:`1.5px solid ${h.color}25`}}>
-<div className="flex items-center justify-between mb-2">
+<div className="flex items-center justify--between mb-2">
 <span className="font-black text-sm" style={{color:h.color}}>사주 ↔ 이름 조화</span>
-<span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{background:h.color}}>{h.label} {h.score}점</span>
+<span className="text-xs font-black px-2 py--0.5 rounded-full text-white" style={{background:h.color}}>{h.label} {h.score}점</span>
 </div>
-<div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-2">
+<div className="h-2 rounded-full bg-gray--100 overflow-hidden mb-2">
 <AnimBar val={h.score} color={h.color}/>
 </div>
-<p className="text-xs text-gray-600">{h.desc}</p>
+<p className="text-xs text-gray--600">{h.desc}</p>
 </div>
 );
 })()}
@@ -1142,8 +1142,8 @@ return(
 ):(
 <div className="bg-white rounded-[28px] p-8 text-center shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
 <div className="text-5xl mb-3"></div>
-<p className="font-bold text-gray-600 mb-1">한자 이름이 아직 없어요</p>
-<p className="text-xs text-gray-400">프로필 등록·수정 시 한자를 선택하면 성명학 분석이 활성화됩니다.</p>
+<p className="font-bold text-gray--600 mb-1">한자 이름이 아직 없어요</p>
+<p className="text-xs text-gray--400">프로필 등록·수정 시 한자를 선택하면 성명학 분석이 활성화됩니다.</p>
 </div>
 )}
 </motion.div>
@@ -1171,35 +1171,35 @@ if(!form.name.trim()){alert("이름을 입력해주세요!");return;}
 const saju=calcSaju(+form.y,+form.m,+form.d,+form.h,+form.mi,form.timeUnknown);
 onSave({…form,id:editProfile?.id??Date.now(),charIdx:saju.charIdx,saju,hanjaSelections});
 };
-const sel="p-3 bg-gray-50 rounded-xl text-sm font-medium outline-none w-full";
+const sel="p-3 bg-gray--50 rounded-xl text-sm font-medium outline-none w-full";
 return(
 <motion.div key="add" initial={{y:40,opacity:0}} animate={{y:0,opacity:1}} exit={{y:40,opacity:0}} className="p-5">
-<button onClick={onBack} className="flex items-center gap-1 text-gray-400 mb-5 font-bold text-sm">
+<button onClick={onBack} className="flex items-center gap-1 text-gray--400 mb-5 font-bold text-sm">
 <ArrowLeft size={16}/> 돌아가기
 </button>
 <div className="bg-white rounded-[36px] p-6 shadow-lg" style={{border:`2px solid ${previewChar.color}30`}}>
 <motion.div key={previewChar.name} initial={{scale:.8,opacity:0}} animate={{scale:1,opacity:1}}
-className="text-center py-5 rounded-2xl mb-4" style={{background:previewChar.bg}}>
+className="text-center py--5 rounded-2xl mb-4" style={{background:previewChar.bg}}>
 <div className="text-[72px] leading-none mb-1">{previewChar.icon}</div>
 <div className="font-bold text-sm" style={{color:previewChar.color}}>{previewChar.name}</div>
-<div className="text-[10px] text-gray-400 mt-0.5">인덱스 {previewSaju.charIdx} ({previewSaju.charIdx%2===0?"낮·양시":"밤·음시"})</div>
+<div className="text-[10px] text-gray--400 mt-0.5">인덱스 {previewSaju.charIdx} ({previewSaju.charIdx%2===0?"낮·양시":"밤·음시"})</div>
 </motion.div>
 <h2 className="text-2xl font-black text-[#1C3A33] mb-5">{editProfile?"프로필 수정":"새 프로필 등록"}</h2>
-<div className="space-y-5">
+<div className="space-y--5">
 <div>
-<label className="text-xs font-bold text-gray-500 block mb-1.5">이름</label>
+<label className="text-xs font-bold text-gray--500 block mb-1.5">이름</label>
 <input placeholder="이름을 입력해주세요" value={form.name}
-className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-medium text-[#2C2115] text-[15px]"
+className="w-full p-4 bg-gray--50 rounded-2xl outline-none font-medium text-[#2C2115] text-[15px]"
 style={{border:`1.5px solid ${form.name?previewChar.color+"40":"transparent"}`}}
 onChange={e=>setForm({…form,name:e.target.value})}/>
 </div>
 {form.name.trim()&&(
-<div className="bg-gray-50 rounded-2xl p-4">
+<div className="bg-gray--50 rounded-2xl p-4">
 <HanjaPicker name={form.name} selections={hanjaSelections} onChange={handleHanjaChange}/>
 </div>
 )}
 <div>
-<label className="text-xs font-bold text-gray-500 block mb-1.5">생년월일</label>
+<label className="text-xs font-bold text-gray--500 block mb-1.5">생년월일</label>
 <div className="grid grid-cols-3 gap-2">
 <select className={sel} value={form.y} onChange={e=>setForm({…form,y:e.target.value})}>{YS.map(y=><option key={y} value={y}>{y}년</option>)}</select>
 <select className={sel} value={form.m} onChange={e=>setForm({…form,m:e.target.value,d:"1"})}>{MS.map(m=><option key={m} value={m}>{m}월</option>)}</select>
@@ -1207,9 +1207,9 @@ onChange={e=>setForm({…form,name:e.target.value})}/>
 </div>
 </div>
 <div>
-<div className="flex justify-between items-center mb-1.5">
-<label className="text-xs font-bold text-gray-500">태어난 시각 (KST)</label>
-<div className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer" onClick={()=>setForm({…form,timeUnknown:!form.timeUnknown})}>
+<div className="flex justify--between items-center mb-1.5">
+<label className="text-xs font-bold text-gray--500">태어난 시각 (KST)</label>
+<div className="flex items-center gap-2 text-xs text-gray--500 cursor-pointer" onClick={()=>setForm({…form,timeUnknown:!form.timeUnknown})}>
 <div className="w-10 h-5 rounded-full flex items-center px-0.5 transition-colors" style={{backgroundColor:form.timeUnknown?"#1C3A33":"#d1d5db"}}>
 <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${form.timeUnknown?"translate-x-5":"translate-x-0"}`}/>
 </div>
@@ -1222,13 +1222,13 @@ onChange={e=>setForm({…form,name:e.target.value})}/>
 <select className={sel} value={form.h} onChange={e=>setForm({…form,h:e.target.value})}>{HS.map(h=><option key={h} value={h}>{String(h).padStart(2,"0")}시</option>)}</select>
 <select className={sel} value={form.mi} onChange={e=>setForm({…form,mi:e.target.value})}>{MI.map(m=><option key={m} value={m}>{String(m).padStart(2,"0")}분</option>)}</select>
 </div>
-<p className="text-[10px] text-gray-400 mt-1.5">✦ KST −30분 보정 · 23:30~00:29 출생자 전날 자시 소급</p>
+<p className="text-[10px] text-gray--400 mt-1.5">✦ KST −30분 보정 · 23:30~00:29 출생자 전날 자시 소급</p>
 {!form.timeUnknown&&<p className="text-[10px] mt-0.5" style={{color:previewChar.color}}>시지 {previewSaju.hBranch!==null?BRANCHES_KO[previewSaju.hBranch]:"?"}({(previewSaju.hBranch??0)>=6?"음시→밤 동물":"양시→낮 동물"})</p>}
 </>
 )}
 </div>
 <motion.button whileTap={{scale:.97}} onClick={handleSave}
-className="w-full py-4 rounded-[20px] font-black text-xl text-white shadow-lg"
+className="w-full py--4 rounded-[20px] font-black text-xl text-white shadow-lg"
 style={{background:"linear-gradient(135deg,#1C3A33,#2d5a4a)"}}>
 {editProfile?"수정 완료 ✓":"등록하기 "}
 </motion.button>
@@ -1255,14 +1255,14 @@ r.readAsText(file);e.target.value="";
 };
 return(
 <motion.div key="friends" initial={{x:40,opacity:0}} animate={{x:0,opacity:1}} exit={{x:40,opacity:0}} className="p-5">
-<div className="flex justify-between items-center mb-5">
+<div className="flex justify--between items-center mb-5">
 <h2 className="text-2xl font-black text-[#1C3A33]"> 아우라 친구들</h2>
-<button onClick={onAdd} className="flex items-center gap-1 bg-[#1C3A33] text-white px-4 py-2 rounded-full font-bold text-sm active:scale-95 transition-transform"><Plus size={13}/> 추가</button>
+<button onClick={onAdd} className="flex items-center gap-1 bg-[#1C3A33] text-white px-4 py--2 rounded-full font-bold text-sm active:scale-95 transition-transform"><Plus size={13}/> 추가</button>
 </div>
 {profiles.length===0?(
-<div className="text-center py-20 text-gray-300"><UserCircle size={52} className="mx-auto mb-3 opacity-40"/><p className="font-bold">아직 등록된 프로필이 없어요</p></div>
+<div className="text-center py--20 text-gray--300"><UserCircle size={52} className="mx-auto mb-3 opacity--40"/><p className="font-bold">아직 등록된 프로필이 없어요</p></div>
 ):(
-<div className="space-y-3">
+<div className="space-y--3">
 <AnimatePresence>
 {profiles.map(p=>{
 const c=CHAR_DATA[p.charIdx??0]??CHAR_DATA[0],on=p.id===activeId;
@@ -1273,14 +1273,14 @@ className="flex items-center gap-3 bg-white p-4 rounded-[22px]"
 style={{border:`2px solid ${on?c.color:"#f0f0f0"}`}}>
 <motion.button whileTap={{scale:.9}} onClick={()=>onSelect(p.id)} className="text-4xl leading-none">{c.icon}</motion.button>
 <div className="flex-1 min-w-0 cursor-pointer" onClick={()=>onSelect(p.id)}>
-<div className="font-black text-gray-800 text-[15px]">{p.name}</div>
+<div className="font-black text-gray--800 text-[15px]">{p.name}</div>
 {hanjaName&&<div className="text-[11px] font-bold tracking-wider" style={{color:c.color}}>{hanjaName}</div>}
-<div className="text-xs text-gray-500">{c.name}</div>
+<div className="text-xs text-gray--500">{c.name}</div>
 <div className="text-[10px] font-bold mt-0.5" style={{color:c.color}}>{ELEM_NAME[c.element]}</div>
 </div>
-{on&&<span className="text-[10px] bg-[#1C3A33] text-white px-2 py-1 rounded-full font-bold flex-shrink-0">현재</span>}
-<motion.button whileTap={{scale:.9}} onClick={()=>onEdit(p)} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{background:"#f0f7f4",color:"#1C3A33"}}></motion.button>
-<motion.button whileTap={{scale:.9}} onClick={()=>{if(window.confirm(`${p.name}님을 삭제할까요?`))onDelete(p.id);}} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{background:"#fff0f0",color:"#e05555"}}><Trash2 size={13}/></motion.button>
+{on&&<span className="text-[10px] bg-[#1C3A33] text-white px-2 py--1 rounded-full font-bold flex-shrink-0">현재</span>}
+<motion.button whileTap={{scale:.9}} onClick={()=>onEdit(p)} className="w-8 h-8 rounded-full flex items-center justify--center flex-shrink-0" style={{background:"#f0f7f4",color:"#1C3A33"}}></motion.button>
+<motion.button whileTap={{scale:.9}} onClick={()=>{if(window.confirm(`${p.name}님을 삭제할까요?`))onDelete(p.id);}} className="w-8 h-8 rounded-full flex items-center justify--center flex-shrink-0" style={{background:"#fff0f0",color:"#e05555"}}><Trash2 size={13}/></motion.button>
 </motion.div>
 );
 })}
@@ -1288,15 +1288,15 @@ style={{border:`2px solid ${on?c.color:"#f0f0f0"}`}}>
 </div>
 )}
 <div className="mt-8 bg-white rounded-[24px] p-5" style={{border:"1.5px solid #f0f0f0"}}>
-<p className="text-xs font-bold text-gray-400 mb-3"> 데이터 백업 / 복구</p>
+<p className="text-xs font-bold text-gray--400 mb-3"> 데이터 백업 / 복구</p>
 <div className="flex gap-2">
-<button onClick={handleExport} className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold active:scale-95" style={{background:"#f0fdf4",color:"#2d6a4f",border:"1px solid #2d6a4f20"}}><Download size={12}/> 내보내기</button>
-<label className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold cursor-pointer" style={{background:"#f0f4ff",color:"#1565c0",border:"1px solid #1565c020"}}>
+<button onClick={handleExport} className="flex-1 flex items-center justify--center gap-1 py--2.5 rounded-xl text-xs font-bold active:scale-95" style={{background:"#f0fdf4",color:"#2d6a4f",border:"1px solid #2d6a4f20"}}><Download size={12}/> 내보내기</button>
+<label className="flex-1 flex items-center justify--center gap-1 py--2.5 rounded-xl text-xs font-bold cursor-pointer" style={{background:"#f0f4ff",color:"#1565c0",border:"1px solid #1565c020"}}>
 <Upload size={12}/> 가져오기<input type="file" accept=".json" className="hidden" onChange={handleImport}/>
 </label>
 </div>
 <AnimatePresence>
-{status&&<motion.div initial={{opacity:0,y:5}} animate={{opacity:1,y:0}} exit={{opacity:0}} className={`mt-2 text-center text-xs font-bold py-2 rounded-xl ${status==="ok"?"bg-emerald-50 text-emerald-600":"bg-red-50 text-red-500"}`}>
+{status&&<motion.div initial={{opacity:0,y:5}} animate={{opacity:1,y:0}} exit={{opacity:0}} className={`mt-2 text-center text-xs font-bold py--2 rounded-xl ${status==="ok"?"bg-emerald-50 text-emerald-600":"bg-red-50 text-red-500"}`}>
 {status==="ok"?"✓ 복구 완료!":"✗ 파일 형식을 확인해주세요."}
 </motion.div>}
 </AnimatePresence>
@@ -1319,13 +1319,13 @@ return(
 <motion.div key="match" initial={{x:40,opacity:0}} animate={{x:0,opacity:1}} exit={{x:40,opacity:0}} className="p-5">
 <h2 className="text-2xl font-black text-[#1C3A33] mb-5"> 아우라 궁합</h2>
 {profiles.length<2?(
-<div className="text-center py-20 text-gray-300"><Heart size={52} className="mx-auto mb-3 opacity-40"/><p className="font-bold">2명 이상 등록해야 궁합을 볼 수 있어요</p></div>
+<div className="text-center py--20 text-gray--300"><Heart size={52} className="mx-auto mb-3 opacity--40"/><p className="font-bold">2명 이상 등록해야 궁합을 볼 수 있어요</p></div>
 ):(
-<div className="space-y-4">
+<div className="space-y--4">
 <div className="grid grid-cols-2 gap-3">
 {[{label:"첫 번째",val:s1,set:setS1},{label:"두 번째",val:s2,set:setS2}].map(({label,val,set})=>(
 <div key={label}>
-<p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1">{label}</p>
+<p className="text-[10px] font-bold text-gray--400 mb-1.5 ml-1">{label}</p>
 <select value={val??""} onChange={e=>set(+e.target.value)}
 className="w-full p-3 bg-white rounded-2xl text-sm font-bold outline-none"
 style={{border:"2px solid #C1A87D"}}>
@@ -1337,35 +1337,35 @@ style={{border:"2px solid #C1A87D"}}>
 {s1!==s2&&compat&&c1&&c2?(
 <motion.div initial={{scale:.95,opacity:0}} animate={{scale:1,opacity:1}}
 className="bg-white rounded-[30px] p-7 text-center shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
-<div className="flex justify-center items-center gap-5 mb-6">
+<div className="flex justify--center items-center gap-5 mb-6">
 {[{p:p1,c:c1},{p:p2,c:c2}].map(({p,c},i)=>(
 <React.Fragment key={p.id}>
 <div className="text-center">
 <div className="text-5xl mb-1">{c.icon}</div>
-<div className="text-sm font-bold text-gray-600">{p.name}</div>
+<div className="text-sm font-bold text-gray--600">{p.name}</div>
 <div className="text-[10px] font-bold mt-0.5" style={{color:c.color}}>{ELEM_NAME[c.element]}</div>
 </div>
 {i===0&&<motion.div animate={{scale:[1,1.4,1]}} transition={{repeat:Infinity,duration:1.8}} className="text-3xl">{compat.emoji}</motion.div>}
 </React.Fragment>
 ))}
 </div>
-<div className="flex justify-center gap-2 mb-4">
+<div className="flex justify--center gap-2 mb-4">
 {Array.from({length:5},(_,i)=><motion.div key={i} initial={{scale:0}} animate={{scale:1}} transition={{delay:.1+i*.08,type:"spring"}} className="w-6 h-6 rounded-full" style={{backgroundColor:i<compat.level?"#1C3A33":"#f0f0f0"}}/>)}
 </div>
 <div className="text-2xl font-black text-[#1C3A33] mb-2">{compat.label}</div>
-<p className="text-gray-600 text-sm leading-relaxed mb-5">{compat.desc}</p>
+<p className="text-gray--600 text-sm leading-relaxed mb-5">{compat.desc}</p>
 <div className="grid grid-cols-2 gap-3 text-left">
 {[{p:p1,c:c1},{p:p2,c:c2}].map(({p,c})=>(
 <div key={p.id} className="rounded-2xl p-3.5" style={{background:`${c.color}0d`}}>
 <div className="text-[10px] font-bold mb-0.5" style={{color:`${c.color}99`}}>{p.name}의 기운</div>
 <div className="font-bold text-sm" style={{color:c.color}}>{ELEM_NAME[c.element]}</div>
-<div className="text-[11px] text-gray-500 mt-0.5">{c.keywords.join(" · ")}</div>
+<div className="text-[11px] text-gray--500 mt-0.5">{c.keywords.join(" · ")}</div>
 </div>
 ))}
 </div>
 </motion.div>
 ):(
-<div className="bg-white rounded-[28px] p-10 text-center text-gray-300 text-sm" style={{border:"1.5px solid #f0f0f0"}}>
+<div className="bg-white rounded-[28px] p-10 text-center text-gray--300 text-sm" style={{border:"1.5px solid #f0f0f0"}}>
 {s1===s2?"서로 다른 두 사람을 선택해주세요 ":"두 사람을 선택해보세요"}
 </div>
 )}
@@ -1425,9 +1425,9 @@ return(
 <AnimatePresence>
 {packChar&&<PackReveal char={packChar} onClose={()=>setPackChar(null)}/>}
 </AnimatePresence>
-<header className="px-5 py-4 flex justify-between items-center sticky top-0 z-30" style={{background:"rgba(250,249,246,.95)",borderBottom:"1px solid #f0f0f0",backdropFilter:"blur(12px)"}}>
+<header className="px-5 py--4 flex justify--between items-center sticky top-0 z-30" style={{background:"rgba(250,249,246,.95)",borderBottom:"1px solid #f0f0f0",backdropFilter:"blur(12px)"}}>
 <button onClick={()=>setView("home")} className="text-2xl font-black text-[#1C3A33] tracking-tighter">AuraFriends.</button>
-{streak>1&&<motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring"}} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-black" style={{background:"#fff3e0",color:"#e65100"}}>{streak}일 {lv.icon}</motion.div>}
+{streak>1&&<motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring"}} className="flex items-center gap-1 px-2.5 py--1.5 rounded-full text-xs font-black" style={{background:"#fff3e0",color:"#e65100"}}>{streak}일 {lv.icon}</motion.div>}
 </header>
 <AnimatePresence mode="wait">
 {view==="home"    &&<HomeScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId} onAdd={()=>{setEditProfile(null);setView("add");}} streak={streak}/>}
@@ -1438,10 +1438,10 @@ return(
 </AnimatePresence>
 {view!=="add"&&(
 <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50" style={{background:"rgba(255,255,255,.95)",backdropFilter:"blur(16px)",borderTop:"1px solid #f0f0f0"}}>
-<div className="flex justify-around py-2" style={{paddingBottom:"max(8px,env(safe-area-inset-bottom))"}}>
+<div className="flex justify--around py--2" style={{paddingBottom:"max(8px,env(safe-area-inset-bottom))"}}>
 {NAV.map(n=>{const on=view===n.id;return(
 <motion.button key={n.id} whileTap={{scale:.88}} onClick={()=>setView(n.id)}
-className="flex flex-col items-center gap-0.5 py-2 px-3 rounded-2xl"
+className="flex flex-col items-center gap-0.5 py--2 px-3 rounded-2xl"
 style={{color:on?"#1C3A33":"#c5c5c5"}}>
 <span className="text-xl">{n.icon}</span>
 <span className="text-[10px] font-bold">{n.label}</span>
