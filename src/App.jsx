@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from “react”;
-import { motion, AnimatePresence } from “framer-motion”;
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
 Plus, Trash2, Share2, Sparkles, ArrowLeft, UserCircle,
 Heart, Zap, Star, Calendar, Check, Flame, Award, Home,
