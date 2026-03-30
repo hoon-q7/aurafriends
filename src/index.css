@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar { display: none; }
+scrollbar-width: none;
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #FAF9F6;
+  overscroll-behavior: none;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
