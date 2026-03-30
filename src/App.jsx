@@ -22,7 +22,7 @@ const BRANCH_ELEM = [4,2,0,0,2,1,1,2,3,3,2,4];
 
 function toJDN(year, month, day) {
 let y = year, m = month;
-if (m <= 2) { y––; m += 12; }
+if (m <= 2) { y--; m += 12; }
 const A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
 return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + day + B - 1524;
 }
