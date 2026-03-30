@@ -130,7 +130,7 @@ const getLevel = s => LEVELS.find(l => s>=l.min && s<=l.max) ?? LEVELS[0];
 const IDIOMS = [
   {text:"積小成大",reading:"적소성대",meaning:"작은 것이 쌓여 큰 것을 이룬다 — 오늘의 작은 노력"},
   {text:"水滴石穿",reading:"수적석천",meaning:"물방울이 돌을 뚫는다 — 꾸준함이 어떤 장벽도 허물니다"},
-  {text:"日就月將",reading:"일취월장",meaning:"날마다 달마다 성장한다 - 오늘도 어제보다 한 뼘 성장"},
+  {text:"日Just月將",reading:"일취월장",meaning:"날마다 달마다 성장한다 - 오늘도 어제보다 한 뼘 성장"},
   {text:"柳暗花明",reading:"유암화명",meaning:"버드나무 그늘 너머 꽃밭이 펼쳐진다 - 막힌 길 끝에"},
   {text:"見機而動",reading:"견기이동",meaning:"기회를 보고 움직인다 - 오늘 찾아온 기회를 놓치지 마라"},
   {text:"精誠所至",reading:"정성소지",meaning:"정성이 지극하면 하늘도 감동한다 - 오늘의 진심이 운명을 바꾼다"},
