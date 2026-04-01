@@ -8,14 +8,12 @@ import {
 
 // ─── Supabase: 환경변수 없으면 null로 처리 (빈화면 버그 #1 수정) ───────────
 // ✅ Supabase: top-level await 제거 → 안전한 초기화
-// (Vercel 빌드 호환, 환경변수 없으면 null 유지)
 let supabase = null;
 function _initSupabase() {
   try {
     const url = import.meta.env.VITE_SUPABASE_URL;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
     if (!url || !key || url === "undefined" || key === "undefined") return;
-    // createClient는 loadHanjaData 안에서 동적 import
     window.__supabaseConfig = { url, key };
   } catch(e) { /* 환경변수 없음 */ }
 }
@@ -24,8 +22,6 @@ _initSupabase();
 // ════════════════════════════════════════════════════════
 //  사주 엔진 v8.0 — MYPIE 8/8 검증 · 10만건 오류율 0%
 // ════════════════════════════════════════════════════════
-
-// ✅ 수정 #1: SOLAR_TERM 10개 → 12개 (SOLAR_TERM[10] undefined 크래시 수정)
 const SOLAR_TERM = [[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,7],[9,8],[10,8],[11,7],[12,7],[1,6]];
 
 const STEMS    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -88,6 +84,7 @@ function calcSaju(year, month, day, hour=12, minute=0, timeUnknown=false) {
   const charIdx = dayGZ * 2 + (hBranch !== null ? (hBranch >= 6 ? 1 : 0) : 0);
   return { yStem, yBranch, mStem, mBranch, dStem, dBranch, hStem, hBranch, dayGZ, charIdx };
 }
+
 // ════════════════════════════════════════════════════════
 //  120가지 캐릭터 빌더
 // ════════════════════════════════════════════════════════
@@ -96,28 +93,17 @@ const ELEM_COLOR = ["#2d6a4f","#bf6100","#9a7100","#546e7a","#1565c0"];
 const SHENG = [1,2,3,4,0];
 const KE    = [2,3,4,0,1];
 
-// colorNames: 각 동물의 행운 색상 이름 (hex 코드 대신 표시용)
 const _SA = [
-  ["곰돌이","🐻",0,"#0F5132","#F0FFF4","강인한 목(木)의 기운",["우직함","신뢰","창의"],
-   "40대 이후 명예와 재물이 쌓이는 대기만성형.","고집보다 유연함이 기회를 부릅니다.",["초록","청록","갈색"]],
-  ["토끼","🐰",0,"#00695C","#F5FFF5","유연한 목(木)의 기운",["친화력","감수성","적응"],
-   "인복이 강하여 협력자를 통해 전성기를 맞이합니다.","결단력이 필요한 순간엔 침착함이 핵심입니다.",["민트","연두","하늘"]],
-  ["사막여우","🦊",1,"#BF6100","#FFF5F0","열정적인 화(火)의 기운",["열정","창의성","카리스마"],
-   "20대 후반 아이디어로 자수성가할 운명.","열정 과잉으로 번아웃이 올 수 있으니 휴식이 필수입니다.",["주황","빨강","금색"]],
-  ["고양이","🐱",1,"#C62828","#FFF0F0","통찰력 있는 화(火)의 기운",["직관","치유","리더십"],
-   "40대 이후 학문적 명예와 지도자 운세.","감정 기복을 다스려야 행운을 지킵니다.",["빨강","자주","핑크"]],
-  ["강아지","🐶",2,"#827717","#FFFDF0","견고한 토(土)의 기운",["신뢰","안정","성실"],
-   "중년에 안정적인 자산 운과 평온을 누림.","새로운 변화에 마음을 열어야 기회가 옵니다.",["황토","노랑","베이지"]],
-  ["돼지","🐷",2,"#6D4C41","#FAF6F0","풍요로운 토(土)의 기운",["풍요","포용","복록"],
-   "평생 먹을 복과 재물운이 끊이지 않는 복록.","실속을 챙기는 지혜가 필요합니다.",["복숭아","살구","황금"]],
-  ["늑대","🐺",3,"#455A64","#F8F8F8","결단력 있는 금(金)의 기운",["결단력","정의감","전문성"],
-   "전문직 분야에서 큰 두각을 나타내며 대운이 옵니다.","부드러운 말투가 행운의 통로입니다.",["은회색","흰색","하늘"]],
-  ["햄스터","🐹",3,"#1565C0","#F5F5FF","명석한 금(金)의 기운",["지혜","분석력","전략"],
-   "명석한 지혜가 재물이 되는 운명.","자만하면 큰 손해가 오니 겸손이 필수입니다.",["보라","남색","흰색"]],
-  ["고래","🐳",4,"#1976D2","#F0FAFF","넓은 수(水)의 기운",["통찰","비전","포용"],
-   "해외운·유통운이 강해 넓은 무대에서 성공.","빠른 실행력이 운을 보강합니다.",["파랑","검정","진회색"]],
-  ["병아리","🐥",4,"#303F9F","#F2F8FF","맑은 수(Water)의 기운",["영감","순수","소통"],
-   "예술·교육 분야에서 큰 성취를 이룹니다.","금전 거래·계약 시 꼼꼼해야 합니다.",["하늘","물색","연보라"]],
+  ["곰돌이","🐻",0,"#0F5132","#F0FFF4","강인한 목(木)의 기운",["우직함","신뢰","창의"],"40대 이후 명예와 재물이 쌓이는 대기만성형.","고집보다 유연함이 기회를 부릅니다.",["초록","청록","갈색"]],
+  ["토끼","🐰",0,"#00695C","#F5FFF5","유연한 목(木)의 기운",["친화력","감수성","적응"],"인복이 강하여 협력자를 통해 전성기를 맞이합니다.","결단력이 필요한 순간엔 침착함이 핵심입니다.",["민트","연두","하늘"]],
+  ["사막여우","🦊",1,"#BF6100","#FFF5F0","열정적인 화(火)의 기운",["열정","창의성","카리스마"],"20대 후반 아이디어로 자수성가할 운명.","열정 과잉으로 번아웃이 올 수 있으니 휴식이 필수입니다.",["주황","빨강","금색"]],
+  ["고양이","🐱",1,"#C62828","#FFF0F0","통찰력 있는 화(火)의 기운",["직관","치유","리더십"],"40대 이후 학문적 명예와 지도자 운세.","감정 기복을 다스려야 행운을 지킵니다.",["빨강","자주","핑크"]],
+  ["강아지","🐶",2,"#827717","#FFFDF0","견고한 토(土)의 기운",["신뢰","안정","성실"],"중년에 안정적인 자산 운과 평온을 누림.","새로운 변화에 마음을 열어야 기회가 옵니다.",["황토","노랑","베이지"]],
+  ["돼지","🐷",2,"#6D4C41","#FAF6F0","풍요로운 토(土)의 기운",["풍요","포용","복록"],"평생 먹을 복과 재물운이 끊이지 않는 복록.","실속을 챙기는 지혜가 필요합니다.",["복숭아","살구","황금"]],
+  ["늑대","🐺",3,"#455A64","#F8F8F8","결단력 있는 금(金)의 기운",["결단력","정의감","전문성"],"전문직 분야에서 큰 두각을 나타내며 대운이 옵니다.","부드러운 말투가 행운의 통로입니다.",["은회색","흰색","하늘"]],
+  ["햄스터","🐹",3,"#1565C0","#F5F5FF","명석한 금(金)의 기운",["지혜","분석력","전략"],"명석한 지혜가 재물이 되는 운명.","자만하면 큰 손해가 오니 겸손이 필수입니다.",["보라","남색","흰색"]],
+  ["고래","🐳",4,"#1976D2","#F0FAFF","넓은 수(水)의 기운",["통찰","비전","포용"],"해외운·유통운이 강해 넓은 무대에서 성공.","빠른 실행력이 운을 보강합니다.",["파랑","검정","진회색"]],
+  ["병아리","🐥",4,"#303F9F","#F2F8FF","맑은 수(Water)의 기운",["영감","순수","소통"],"예술·교육 분야에서 큰 성취를 이룹니다.","금전 거래·계약 시 꼼꼼해야 합니다.",["하늘","물색","연보라"]],
 ];
 
 const _BD = ["새벽별의","대지의","새싹의","달빛","황금","태양의","불꽃","들판의","강철","보석","석양의","심해의"];
@@ -198,9 +184,7 @@ function getCompat(i1, i2) {
   return COMPAT_TABLE.neutral;
 }
 
-// ════════════════════════════════════════════════════════
-//  사주 기반 일운(日運) 엔진 — 랜덤 없음
-// ════════════════════════════════════════════════════════
+// 사주 일운 엔진
 function elemRelation(myElem, todayElem) {
   if (myElem === todayElem)        return 1;
   if (SHENG[todayElem] === myElem) return 2;
@@ -228,10 +212,10 @@ function getTodayJdn(dateStr) {
 
 function getSajuDailyScore(profile, dateStr) {
   if (!profile?.saju) return 75;
-  const jdn        = getTodayJdn(dateStr);
-  const todayStem  = (jdn+49)%10, todayBranch = (jdn+49)%12;
-  const todayElem  = STEM_ELEM[todayStem];
-  const myElem     = STEM_ELEM[profile.saju.dStem];
+  const jdn = getTodayJdn(dateStr);
+  const todayStem = (jdn+49)%10, todayBranch = (jdn+49)%12;
+  const todayElem = STEM_ELEM[todayStem];
+  const myElem = STEM_ELEM[profile.saju.dStem];
   let base = 75;
   base += elemRelation(myElem, todayElem) * 6;
   base += branchRelation(profile.saju.dBranch, todayBranch) * 5;
@@ -242,41 +226,41 @@ function getSajuDailyScore(profile, dateStr) {
 
 function getSajuCats(profile, dateStr) {
   if (!profile?.saju) return {love:72,career:72,health:72,money:72};
-  const jdn       = getTodayJdn(dateStr);
-  const todayStem  = (jdn+49)%10, todayBranch = (jdn+49)%12;
-  const todayElem  = STEM_ELEM[todayStem];
-  const myElem     = STEM_ELEM[profile.saju.dStem];
+  const jdn = getTodayJdn(dateStr);
+  const todayStem = (jdn+49)%10, todayBranch = (jdn+49)%12;
+  const todayElem = STEM_ELEM[todayStem];
+  const myElem = STEM_ELEM[profile.saju.dStem];
   const sr = elemRelation(myElem, todayElem);
   const br = branchRelation(profile.saju.dBranch, todayBranch);
   const cl = v => Math.min(99, Math.max(50, v));
   return {
-    love:   cl(72 + sr*4 + br*8),
+    love: cl(72 + sr*4 + br*8),
     career: cl(72 + sr*8 + br*2),
     health: cl(72 + sr*3 - Math.abs(br)*4 + (br >= 0 ? 4 : 0)),
-    money:  cl(72 + sr*6 + br*4),
+    money: cl(72 + sr*6 + br*4),
   };
 }
 
 function getSajuElemScores(profile, dateStr) {
   if (!profile?.saju) return [60,60,60,60,60];
-  const jdn       = getTodayJdn(dateStr);
-  const todayElem  = STEM_ELEM[(jdn+49)%10];
-  const saju       = profile.saju;
-  const counts     = [0,0,0,0,0];
+  const jdn = getTodayJdn(dateStr);
+  const todayElem = STEM_ELEM[(jdn+49)%10];
+  const saju = profile.saju;
+  const counts = [0,0,0,0,0];
   [saju.yStem,saju.mStem,saju.dStem,saju.hStem].filter(v=>v!=null).forEach(s=>counts[STEM_ELEM[s]]++);
   [saju.yBranch,saju.mBranch,saju.dBranch,saju.hBranch].filter(v=>v!=null).forEach(b=>counts[BRANCH_ELEM[b]]++);
   const maxC = Math.max(...counts, 1);
   return counts.map((c,i) => {
     const base = Math.round(c/maxC*60) + 30;
-    const tb   = (i===todayElem) ? 10 : SHENG[todayElem]===i ? 5 : KE[todayElem]===i ? -5 : 0;
+    const tb = (i===todayElem) ? 10 : SHENG[todayElem]===i ? 5 : KE[todayElem]===i ? -5 : 0;
     return Math.min(99, Math.max(30, base+tb));
   });
 }
 
 const _MISSIONS = {
-  "2":  ["새로운 인연과 적극적으로 연결해 보세요. 좋은 기운이 흐릅니다 💫","창의적인 프로젝트를 시작하기 최적의 날입니다 🌱","주변 사람에게 먼저 다가가보세요. 행운이 찾아옵니다 🤝"],
-  "1":  ["오늘 하루 감사한 일 3가지를 종이에 적어보세요 📝","좋아하는 음악을 들으며 10분간 명상해보세요 🎵","아침 햇살을 5분만 받으며 깊게 숨쉬어 보세요 ☀️"],
-  "0":  ["물 한 잔을 천천히 음미하며 마셔보세요 💧","20분 산책으로 맑은 공기를 마셔보세요 🌿","나 자신을 칭찬하는 말을 소리 내어 3번 해보세요 🌟"],
+  "2": ["새로운 인연과 적극적으로 연결해 보세요. 좋은 기운이 흐릅니다 💫","창의적인 프로젝트를 시작하기 최적의 날입니다 🌱","주변 사람에게 먼저 다가가보세요. 행운이 찾아옵니다 🤝"],
+  "1": ["오늘 하루 감사한 일 3가지를 종이에 적어보세요 📝","좋아하는 음악을 들으며 10분간 명상해보세요 🎵","아침 햇살을 5분만 받으며 깊게 숨쉬어 보세요 ☀️"],
+  "0": ["물 한 잔을 천천히 음미하며 마셔보세요 💧","20분 산책으로 맑은 공기를 마셔보세요 🌿","나 자신을 칭찬하는 말을 소리 내어 3번 해보세요 🌟"],
   "-1": ["오늘은 무리하지 말고 에너지를 충전하는 날로 삼으세요 🌙","스마트폰을 1시간 내려놓고 아날로그 시간을 가져보세요 📵","저녁에 하늘을 바라보며 마음을 가라앉혀 보세요 🌠"],
   "-2": ["오늘은 중요한 결정을 미루고 충분히 쉬세요 🌧️","가까운 사람과 대화로 마음의 짐을 나눠보세요 💌","좋아하는 향기로 나만의 공간을 채워 재충전하세요 🌸"],
 };
@@ -284,11 +268,11 @@ const _MISSIONS = {
 function getSajuMission(profile, dateStr) {
   if (!profile?.saju) return _MISSIONS["0"][0];
   const [,,d] = dateStr.split("-").map(Number);
-  const jdn   = getTodayJdn(dateStr);
-  const te    = STEM_ELEM[(jdn+49)%10];
-  const me    = STEM_ELEM[profile.saju.dStem];
-  const rel   = elemRelation(me, te);
-  const pool  = _MISSIONS[String(rel)] ?? _MISSIONS["0"];
+  const jdn = getTodayJdn(dateStr);
+  const te = STEM_ELEM[(jdn+49)%10];
+  const me = STEM_ELEM[profile.saju.dStem];
+  const rel = elemRelation(me, te);
+  const pool = _MISSIONS[String(rel)] ?? _MISSIONS["0"];
   return pool[d % pool.length];
 }
 
@@ -298,26 +282,26 @@ function getSajuCalendar(profile, year, month) {
   const me = STEM_ELEM[profile.saju.dStem];
   const mb = profile.saju.dBranch;
   const list = Array.from({length:days}, (_,i) => {
-    const d   = i+1;
+    const d = i+1;
     const jdn = toJDN(year, month, d);
-    const te  = STEM_ELEM[(jdn+49)%10];
-    const tb  = (jdn+49)%12;
+    const te = STEM_ELEM[(jdn+49)%10];
+    const tb = (jdn+49)%12;
     const score = 75 + elemRelation(me,te)*6 + branchRelation(mb,tb)*5;
     return { d, score: Math.min(99, Math.max(60, score)) };
   });
   const sorted = [...list].sort((a,b) => b.score - a.score);
   return {
     scores: list.map(x => x.score),
-    good:   new Set(sorted.slice(0,5).map(x=>x.d)),
-    bad:    new Set(sorted.slice(-3).map(x=>x.d)),
+    good: new Set(sorted.slice(0,5).map(x=>x.d)),
+    bad: new Set(sorted.slice(-3).map(x=>x.d)),
   };
 }
 
 function getSajuIdiom(profile, dateStr) {
   if (!profile?.saju) return IDIOMS[0];
-  const jdn     = getTodayJdn(dateStr);
+  const jdn = getTodayJdn(dateStr);
   const todayGZ = (jdn+49)%60;
-  const myGZ    = profile.saju.dayGZ ?? 0;
+  const myGZ = profile.saju.dayGZ ?? 0;
   return IDIOMS[(todayGZ + myGZ) % IDIOMS.length];
 }
 
@@ -329,11 +313,8 @@ function getNextBirthday(m, d) {
   return { days: diff, isToday: diff===0||diff===365 };
 }
 
-// ════════════════════════════════════════════════════════
-//  Supabase 한자 연동
-// ════════════════════════════════════════════════════════
+// 한자 사전
 let HANJA_DICT = {
-  // ── 성(姓) — 빈도 높은 순 ──
   "이":["李","怡","以","異","利","珥"],"김":["金","琴","錦"],"박":["朴","璞","博"],
   "최":["崔","最"],"정":["鄭","貞","正","廷","情","靜","晶","庭"],
   "강":["姜","康","剛","江","鋼"],"윤":["尹","潤","允","胤","玧"],
@@ -356,7 +337,6 @@ let HANJA_DICT = {
   "천":["千","天","川","泉"],"방":["方","邦","芳","房"],
   "공":["孔","恭","功"],"백":["白","伯","柏","百"],
   "류":["柳","流","琉"],"변":["卞","邊","辯"],
-  // ── 이름(名) — 빈도 높은 순 ──
   "준":["俊","峻","準","濬","浚","晙","埈","竣"],
   "현":["賢","炫","玄","鉉","弦","晛","顯","絢"],
   "민":["旻","珉","敏","旼","珢","民"],"영":["英","瑛","永","泳","映","煐","瑩"],
@@ -379,7 +359,7 @@ let HANJA_DICT = {
   "가":["佳","嘉","珈","伽","加","可"],"사":["史","仕","思","斯","沙"],
   "자":["子","慈","紫","自","姿"],"야":["野","夜","耶"],
   "의":["義","毅","儀","意","宜"],"시":["詩","時","始","施","視"],
-  "비":["飛","妃","丕","備","悲"],"추":["秋","楸","樞","追"],
+  "비":["飛","妃","丕","備","비"],"추":["秋","楸","樞","추"],
   "무":["武","茂","撫","務"],"주":["珠","周","宙","舟","株","柱","奏"],
   "두":["斗","杜","頭","豆"],"모":["慕","謀","毛","茅","模"],
   "린":["麟","璘","燐","潾"],"록":["祿","錄","綠","鹿"],
@@ -411,7 +391,6 @@ let HANJA_STROKES = {
   "圓":13,"苑":8,"千":3,"天":4,"川":3,"泉":9,"方":4,"邦":7,"芳":7,
   "房":8,"孔":4,"恭":10,"功":5,"白":5,"伯":7,"柏":9,"百":6,"柳":9,
   "流":10,"琉":11,"卞":5,"邊":19,
-  // 이름 한자
   "俊":9,"峻":10,"準":13,"濬":17,"浚":10,"晙":10,"埈":11,"竣":12,
   "賢":16,"炫":9,"玄":5,"鉉":13,"弦":8,"晛":11,"顯":23,"絢":12,
   "旻":8,"珉":9,"敏":11,"旼":8,"珢":10,"民":5,"英":8,"瑛":14,"永":5,
@@ -458,7 +437,7 @@ async function loadHanjaData() {
     if (error) { console.error("Supabase hanja 로드 실패:", error); return; }
     data.forEach(row => {
       try { HANJA_DICT[row.syllable] = JSON.parse(row.hanjas || "[]"); }
-      catch { /* 기본값 유지 */ }
+      catch { }
     });
     console.log("✅ Supabase HANJA_DICT 업데이트:", Object.keys(HANJA_DICT).length, "개 음절");
   } catch(e) {
@@ -466,9 +445,7 @@ async function loadHanjaData() {
   }
 }
 
-// ════════════════════════════════════════════════════════
-//  성명학
-// ════════════════════════════════════════════════════════
+// 성명학
 const NAME_FORTUNE = [
   {elem:0,icon:"🌳",title:"목(木) 기운의 이름",desc:"성장과 창의의 기운. 예술적 재능과 리더십이 꽃피는 운명입니다.",fortune:"대인관계가 넓고 창의적인 분야에서 두각을 나타냅니다."},
   {elem:1,icon:"🔥",title:"화(火) 기운의 이름",desc:"열정과 카리스마의 기운. 강한 존재감으로 주변을 밝히는 삶입니다.",fortune:"공직이나 교육, 예능 계통에서 큰 성취를 이룹니다."},
@@ -495,32 +472,28 @@ function getNameFortune(syllables, selections) {
   const known = details.filter(d => d.strokes !== null);
   if (!known.length) return null;
   const total = known.reduce((s,d) => s + d.strokes, 0);
-  const elem  = getStrokeElement(total);
+  const elem = getStrokeElement(total);
   return { details, total, elem, fortune: NAME_FORTUNE[elem] };
 }
 
 function getNameHarmony(charElem, nameElem) {
-  if (charElem===nameElem)        return {score:90,label:"동기(同氣)",desc:"같은 기운으로 강화되는 최상의 조합입니다.",color:"#2d6a4f"};
+  if (charElem===nameElem) return {score:90,label:"동기(同氣)",desc:"같은 기운으로 강화되는 최상의 조합입니다.",color:"#2d6a4f"};
   if (SHENG[charElem]===nameElem) return {score:85,label:"상생(相生)",desc:"사주가 이름을 生하여 운을 끌어올립니다.",color:"#1976d2"};
   if (SHENG[nameElem]===charElem) return {score:80,label:"역생(逆生)",desc:"이름이 사주를 生하는 안정적인 조합입니다.",color:"#0f5132"};
-  if (KE[charElem]===nameElem)    return {score:60,label:"상극(相克)",desc:"사주가 이름을 克하나, 의지력이 강해집니다.",color:"#bf6100"};
-  if (KE[nameElem]===charElem)    return {score:55,label:"역극(逆克)",desc:"이름이 사주를 克하여 긴장감이 생깁니다.",color:"#c62828"};
+  if (KE[charElem]===nameElem) return {score:60,label:"상극(相克)",desc:"사주가 이름을 克하나, 의지력이 강해집니다.",color:"#bf6100"};
+  if (KE[nameElem]===charElem) return {score:55,label:"역극(逆克)",desc:"이름이 사주를 克하여 긴장감이 생깁니다.",color:"#c62828"};
   return {score:70,label:"평화(平和)",desc:"균형 잡힌 조합입니다.",color:"#546e7a"};
 }
 
-// ════════════════════════════════════════════════════════
-//  유틸
-// ════════════════════════════════════════════════════════
+// 유틸
 const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
-const maxDays  = (y,m) => new Date(y,m,0).getDate();
+const maxDays = (y,m) => new Date(y,m,0).getDate();
 const YS = Array.from({length:110}, (_,i) => 2026-i);
-const MS = Array.from({length:12},  (_,i) => i+1);
-const HS = Array.from({length:24},  (_,i) => i);
-const MI = Array.from({length:60},  (_,i) => i);
+const MS = Array.from({length:12}, (_,i) => i+1);
+const HS = Array.from({length:24}, (_,i) => i);
+const MI = Array.from({length:60}, (_,i) => i);
 
-// ════════════════════════════════════════════════════════
-//  공통 컴포넌트
-// ════════════════════════════════════════════════════════
+// 공통 컴포넌트
 function ScoreRing({score, color, size=64}) {
   const r = (size/2)-5, C = 2*Math.PI*r;
   const [offset, setOffset] = useState(C);
@@ -553,43 +526,425 @@ function AnimBar({val, color}) {
 }
 
 function ElementRadar({profile, dateStr}) {
-  const char   = CHAR_DATA[profile.charIdx ?? 0] ?? CHAR_DATA[0];
+  const char = CHAR_DATA[profile.charIdx ?? 0] ?? CHAR_DATA[0];
   const scores = getSajuElemScores(profile, dateStr);
   const L = ["木","火","土","金","水"];
   const sz=200, cx=100, cy=100, mR=72;
-  const ang  = [0,1,2,3,4].map(i => (i*72-90)*Math.PI/180);
-  const pt   = (a,r) => [cx+r*Math.cos(a), cy+r*Math.sin(a)];
+  const ang = [0,1,2,3,4].map(i => (i*72-90)*Math.PI/180);
+  const pt = (a,r) => [cx+r*Math.cos(a), cy+r*Math.sin(a)];
   const dpts = ang.map((a,i) => pt(a, mR*scores[i]/100));
   const [vis, setVis] = useState(false);
   useEffect(() => { const t=setTimeout(()=>setVis(true),100); return()=>clearTimeout(t); }, []);
   return (
     <svg width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
       {[.25,.5,.75,1].map((f,gi) => (
-        <polygon key={gi}
-          points={ang.map(a => { const [x,y]=pt(a,mR*f); return `${x},${y}`; }).join(" ")}
-          fill="none" stroke="#f0f0f0" strokeWidth="1"/>
+        <polygon key={gi} points={ang.map(a => { const [x,y]=pt(a,mR*f); return `${x},${y}`; }).join(" ")} fill="none" stroke="#f0f0f0" strokeWidth="1"/>
       ))}
       {ang.map((a,i) => { const [x,y]=pt(a,mR); return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#f0f0f0" strokeWidth="1"/>; })}
-      <polygon
-        points={dpts.map(([x,y]) => `${x},${y}`).join(" ")}
-        fill={`${char.color}25`} stroke={char.color} strokeWidth="2.5" strokeLinejoin="round"
-        style={{opacity:vis?1:0, transition:"opacity .8s"}}/>
-      {dpts.map(([x,y],i) => (
-        <circle key={i} cx={x} cy={y} r="4" fill={char.color}
-          style={{opacity:vis?1:0, transition:`opacity .4s ${.3+i*.06}s`}}/>
-      ))}
-      {ang.map((a,i) => { const [x,y]=pt(a,mR+17); return (
-        <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-          fontSize="13" fontWeight="800" fill={ELEM_COLOR[i]}>{L[i]}</text>
-      ); })}
+      <polygon points={dpts.map(([x,y]) => `${x},${y}`).join(" ")} fill={`${char.color}25`} stroke={char.color} strokeWidth="2.5" strokeLinejoin="round" style={{opacity:vis?1:0, transition:"opacity .8s"}}/>
+      {dpts.map(([x,y],i) => <circle key={i} cx={x} cy={y} r="4" fill={char.color} style={{opacity:vis?1:0, transition:`opacity .4s ${.3+i*.06}s`}}/>)}
+      {ang.map((a,i) => { const [x,y]=pt(a,mR+17); return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="800" fill={ELEM_COLOR[i]}>{L[i]}</text>; })}
     </svg>
   );
 }
-// ════════════════════════════════════════════════════════
-//  홈 화면
-// ════════════════════════════════════════════════════════
+
+// PackReveal 컴포넌트
+function PackReveal({char, onClose}) {
+  const [phase, setPhase] = useState("idle");
+  const setP = p => setPhase(p);
+  useEffect(() => {
+    if (phase==="idle") { const t=setTimeout(()=>setP("crack"),600); return()=>clearTimeout(t); }
+    if (phase==="show") { const t=setTimeout(()=>setP("done"),1600); return()=>clearTimeout(t); }
+  }, [phase]);
+  return (
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[200] flex items-center justify-center" style={{background:"radial-gradient(ellipse at center,#1a1a2e 0%,#0d0d1a 100%)"}}>
+      <AnimatePresence mode="wait">
+        {phase==="idle" && (
+          <motion.div key="i" exit={{scale:0,opacity:0}} className="text-center cursor-pointer" onClick={()=>setP("crack")}>
+            <motion.div animate={{y:[0,-12,0]}} transition={{repeat:Infinity,duration:2.2}} className="text-[120px] mb-3">🥚</motion.div>
+            <p className="text-white/50 text-base">탭하여 아우라를 깨우세요</p>
+          </motion.div>
+        )}
+        {phase==="crack" && (
+          <motion.div key="c" animate={{scale:[1,1.25,0.9,1.15,1], rotate:[0,-8,8,-4,0]}} transition={{duration:.7}} onAnimationComplete={()=>setP("burst")} className="text-[120px]">💥</motion.div>
+        )}
+        {phase==="burst" && (
+          <motion.div key="b" initial={{scale:0,opacity:0}} animate={{scale:[0,1.6,1.2,1.4,1.3],opacity:1}} transition={{duration:.6}} onAnimationComplete={()=>setP("show")} className="text-[100px]">✨</motion.div>
+        )}
+        {(phase==="show"||phase==="done") && (
+          <motion.div key="s" initial={{scale:.5,opacity:0,y:40}} animate={{scale:1,opacity:1,y:0}} transition={{type:"spring",damping:12,stiffness:80}} onAnimationComplete={()=>{ if(phase==="show") setP("done"); }} className="text-center px-8">
+            <motion.div animate={{y:[0,-12,0]}} transition={{repeat:Infinity,duration:2.8}} className="text-[120px] mb-3">{char.icon}</motion.div>
+            <h2 className="text-3xl font-black mb-1" style={{color:char.color,textShadow:`0 0 30px ${char.color}60`}}>{char.name}</h2>
+            <p className="text-white/60 text-sm mb-2">{ELEM_NAME[char.element]}</p>
+            <div className="flex gap-2 justify-center flex-wrap mb-7">
+              {char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1 rounded-full bg-white/15 text-white/80">{k}</span>)}
+            </div>
+            {phase==="done" && (
+              <motion.button initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:.3}} whileTap={{scale:.95}} onClick={onClose} className="bg-white font-black px-8 py-3 rounded-full text-base" style={{color:char.color}}>
+                내 운명 확인하기 →
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// HanjaPicker, SyllableRow 등 한자 선택 컴포넌트 (전체 포함)
+function SyllableRow({syl, idx, selected, onChange}) {
+  const options = HANJA_DICT[syl] ?? [];
+  const [showCustom, setShowCustom] = useState(false);
+  const [customHanja, setCustomHanja] = useState("");
+  const [customStrokes, setCustomStrokes] = useState("");
+  const [customError, setCustomError] = useState("");
+
+  const handleCustomAdd = () => {
+    setCustomError("");
+    const h = customHanja.trim();
+    if (!h) { setCustomError("한자를 입력해주세요"); return; }
+    if (!/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(h)) {
+      setCustomError("한자(漢字)를 입력해주세요 (예: 李, 炳, 勳)"); return;
+    }
+    const s = customStrokes ? parseInt(customStrokes) : null;
+    if (customStrokes && (isNaN(s)||s<1||s>64)) { setCustomError("획수는 1~64 사이여야 합니다"); return; }
+    if (s) HANJA_STROKES[h] = s;
+    onChange(idx, h);
+    setShowCustom(false); setCustomHanja(""); setCustomStrokes("");
+  };
+
+  const isCustomSel = selected && !options.includes(selected);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xl" style={{background:selected?"rgba(28,58,51,.12)":"#f5f5f5",color:selected?"#1C3A33":"#aaa"}}>
+            {selected || syl}
+          </div>
+          <span className="text-xs text-gray-400 font-medium">
+            {options.length > 0 ? `"${syl}" — ${options.length}개` : `"${syl}" — 직접입력`}
+          </span>
+        </div>
+        <div className="flex gap-1">
+          <button onClick={()=>{setShowCustom(v=>!v);setCustomError("");}} className="text-[10px] font-bold px-2 py-1 rounded-xl" style={{background:showCustom?"rgba(28,58,51,.12)":"#f5f5f5",color:showCustom?"#1C3A33":"#666"}}>
+            ✏️ 직접 입력
+          </button>
+          {selected && <button onClick={()=>onChange(idx,"")} className="text-[10px] px-2 py-1 rounded-xl text-gray-400">✕</button>}
+        </div>
+      </div>
+
+      {options.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {options.map(hanja => {
+            const strokes = HANJA_STROKES[hanja], isSel = selected===hanja;
+            return (
+              <motion.button key={hanja} whileTap={{scale:.88}} onClick={()=>onChange(idx, isSel?"":hanja)}
+                className="flex flex-col items-center px-3 py-2 rounded-2xl border relative"
+                style={{background:isSel?"#1C3A33":"white",borderColor:isSel?"#1C3A33":"#ddd",color:isSel?"white":"#333"}}>
+                {isSel && <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 text-white text-[10px] rounded-full flex items-center justify-center">✓</div>}
+                <span className="text-xl leading-none font-bold">{hanja}</span>
+                {strokes && <span className="text-[9px] mt-0.5" style={{color:isSel?"#fff":"#aaa"}}>{strokes}획</span>}
+              </motion.button>
+            );
+          })}
+        </div>
+      )}
+
+      {isCustomSel && (
+        <motion.div initial={{opacity:0,scale:.9}} animate={{opacity:1,scale:1}} className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl mb-2" style={{background:"rgba(28,58,51,.1)",border:"1.5px solid rgba(28,58,51,.3)"}}>
+          <span className="text-xl font-black text-[#1C3A33]">{selected}</span>
+          <span className="text-[10px] font-bold text-gray-500">직접 입력됨</span>
+          {HANJA_STROKES[selected] && <span className="text-[10px] text-gray-400">({HANJA_STROKES[selected]}획)</span>}
+          <button onClick={()=>onChange(idx,"")} className="text-gray-400 ml-1 text-xs">✕</button>
+        </motion.div>
+      )}
+
+      <AnimatePresence>
+        {showCustom && (
+          <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}} className="overflow-hidden">
+            <div className="rounded-2xl p-4 space-y-3 mt-1" style={{background:"rgba(28,58,51,.05)"}}>
+              <p className="text-[11px] font-bold text-gray-500">✍️ "{syl}"에 해당하는 한자 직접 입력</p>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="text-[10px] text-gray-400 block mb-1 font-bold">한자 (1글자)</label>
+                  <input type="text" value={customHanja} maxLength={1} placeholder="예) 勳" onChange={e=>setCustomHanja(e.target.value.slice(0,1))} className="w-full text-center text-2xl font-black rounded-xl py-3" style={{border:"1.5px solid #ddd",color:"#1C3A33",background:"white"}}/>
+                </div>
+                <div style={{width:80}}>
+                  <label className="text-[10px] text-gray-400 block mb-1 font-bold">획수 (선택)</label>
+                  <input type="number" value={customStrokes} placeholder="예) 16" onChange={e=>setCustomStrokes(e.target.value)} min={1} max={64} className="w-full text-center text-lg font-bold rounded-xl py-3" style={{border:"1.5px solid #ddd",background:"white"}}/>
+                </div>
+                <div className="flex items-end">
+                  <button onClick={handleCustomAdd} className="px-4 py-3 rounded-xl font-black text-sm text-white flex items-center gap-1" style={{background:"#1C3A33"}}>
+                    <Plus size={13}/> 추가
+                  </button>
+                </div>
+              </div>
+              {customError && <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-[10px] text-red-500">{customError}</motion.p>}
+              <p className="text-[10px] text-gray-400">예) 勳 / 16획 — 획수를 모르면 빈칸도 가능</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function HanjaPicker({name, selections, onChange}) {
+  if (!name?.trim()) return null;
+  const syllables = name.trim().split("");
+  return (
+    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-bold text-gray-500">한자 이름 선택 (선택사항)</label>
+        <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-2xl">
+          {syllables.filter((_,i)=>selections[i]).length}/{syllables.length} 선택됨
+        </span>
+      </div>
+      {syllables.some((_,i)=>selections[i]) && (
+        <div className="text-center py-3 rounded-2xl" style={{background:"rgba(28,58,51,.05)",border:"1px solid rgba(28,58,51,.12)"}}>
+          <div className="flex justify-center gap-1 items-baseline">
+            {syllables.map((syl,i)=><span key={i} className="font-black text-xl text-[#1C3A33]">{selections[i]||syl}</span>)}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1">한자 이름 미리보기</p>
+        </div>
+      )}
+      {syllables.map((syl,idx)=>(
+        <SyllableRow key={idx} syl={syl} idx={idx} selected={selections[idx]||""} onChange={onChange}/>
+      ))}
+    </motion.div>
+  );
+}
+
+// CharCard
+function CharCard({profile, char, streak=1}) {
+  const [copied, setCopied] = useState(false);
+  const lv = getLevel(streak);
+  const hanjaDisplay = useMemo(() => {
+    if (!profile.hanjaSelections || !profile.name) return null;
+    const syls = profile.name.trim().split("");
+    if (!syls.some((_,i)=>profile.hanjaSelections[i])) return null;
+    return syls.map((s,i)=>profile.hanjaSelections[i]||s).join("");
+  }, [profile]);
+
+  const handleShare = async () => {
+    const h = hanjaDisplay ? ` (${hanjaDisplay})` : "";
+    const txt = `✦ ${profile.name}${h}님의 아우라 ✦\n${char.icon} ${char.name} (${ELEM_NAME[char.element]})\n대운: ${char.luckTrend}\n#AuraFriends #사주`;
+    try { if (navigator.share) { await navigator.share({title:"AuraFriends",text:txt}); return; } } catch {}
+    try { await navigator.clipboard.writeText(txt); setCopied(true); setTimeout(()=>setCopied(false),2000); } catch {}
+  };
+
+  return (
+    <motion.div initial={{scale:.9,opacity:0}} animate={{scale:1,opacity:1}} transition={{type:"spring",damping:15}}
+      className="rounded-[40px] p-8 text-center shadow-xl relative overflow-hidden"
+      style={{background:`linear-gradient(145deg,${char.bg},white)`,border:`2px solid ${char.color}20`}}>
+      <div className="absolute bottom-3 right-5 text-[80px] opacity-[0.06] pointer-events-none">{char.icon}</div>
+      <motion.div animate={{y:[0,-8,0]}} transition={{repeat:Infinity,duration:3.5}} className="text-[96px] mb-4 leading-none">{char.icon}</motion.div>
+      <h2 className="text-3xl font-black text-[#1C3A33] mb-0.5">{profile.name}</h2>
+      {hanjaDisplay && (
+        <motion.div initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} className="text-lg font-bold mb-1 tracking-widest" style={{color:char.color}}>
+          {hanjaDisplay}
+        </motion.div>
+      )}
+      <p className="text-base font-bold mb-3" style={{color:char.color}}>{char.name}</p>
+      <div className="flex justify-center gap-2 flex-wrap mb-3">
+        <span className="text-xs font-black px-3 py-1.5 rounded-full text-white" style={{backgroundColor:char.color}}>{ELEM_NAME[char.element]}</span>
+        {char.keywords.map(k=><span key={k} className="text-xs font-bold px-3 py-1.5 rounded-full bg-white/70" style={{color:char.color}}>{k}</span>)}
+      </div>
+      <div className="flex justify-center mb-4">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-black text-xs" style={{background:`${char.color}15`,border:`1.5px solid ${char.color}30`,color:char.color}}>
+          {lv.icon} {lv.rank} {lv.name}
+        </div>
+      </div>
+      <motion.button whileTap={{scale:.93}} onClick={handleShare}
+        className="flex items-center gap-2 mx-auto px-5 py-2.5 rounded-2xl font-bold text-sm bg-white shadow-sm"
+        style={{color:char.color,border:`1.5px solid ${char.color}30`}}>
+        {copied ? <><Check size={14}/> 복사됨!</> : <><Share2 size={14}/> 공유하기</>}
+      </motion.button>
+    </motion.div>
+  );
+}
+
+// 운세 컴포넌트들
+function CategoryFortune({profile, char}) {
+  const today = todayStr();
+  const cats = getSajuCats(profile, today);
+  const items = [
+    {label:"연애운",key:"love",icon:"💖",color:"#e91e63"},
+    {label:"직업운",key:"career",icon:"📈",color:"#1976d2"},
+    {label:"건강운",key:"health",icon:"🌿",color:"#388e3c"},
+    {label:"재물운",key:"money",icon:"💰",color:"#f57f17"},
+  ];
+  return (
+    <div className="space-y-3">
+      {items.map(({label,key,icon,color}) => (
+        <div key={key}>
+          <div className="flex justify-between items-center mb-1.5">
+            <div className="flex items-center gap-1.5 font-bold text-xs" style={{color}}>
+              <span>{icon}</span>{label}
+            </div>
+            <span className="text-xs font-black" style={{color}}>{cats[key]}점</span>
+          </div>
+          <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+            <AnimBar val={cats[key]} color={color}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DailyFortune({profile, char}) {
+  const today = todayStr();
+  const score = getSajuDailyScore(profile, today);
+  const mission = getSajuMission(profile, today);
+  const jdn = getTodayJdn(today);
+  const todayStem = (jdn+49)%10, todayBranch = (jdn+49)%12;
+  const summary = score>=90?"최고의 날! 🌟":score>=80?"에너지 넘침 ✨":score>=70?"순항 중 💫":"재충전 필요 🌙";
+  return (
+    <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.15}}
+      className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
+      <div className="flex items-center gap-2 mb-4">
+        <Sun size={17} color="#c0550a"/>
+        <span className="font-bold text-[#1C3A33] text-[15px]">오늘의 아우라 ({today})</span>
+        <span className="text-[10px] text-gray-400 ml-auto">{STEMS[todayStem]}{BRANCHES[todayBranch]}일</span>
+      </div>
+      <div className="flex items-center gap-4 mb-5">
+        <ScoreRing score={score} color={char.color} size={64}/>
+        <div className="flex-1">
+          <div className="font-bold text-gray-800 text-[15px]">{summary}</div>
+          <div className="text-sm text-gray-500 mt-1">오늘 {STEMS[todayStem]}일 ↔ 내 일주의 오행 관계</div>
+        </div>
+      </div>
+      <div className="mb-5">
+        <p className="text-xs font-bold text-gray-400 mb-3">📊 분야별 오늘의 운세</p>
+        <CategoryFortune profile={profile} char={char}/>
+      </div>
+      <div className="rounded-2xl p-4" style={{background:`${char.color}0d`}}>
+        <p className="text-[10px] font-black mb-1.5" style={{color:char.color}}>✦ 오늘의 행운 미션</p>
+        <p className="text-[13px] text-gray-700 leading-relaxed">{mission}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function DailyDetailModal({profile, dateStr, onClose}) {
+  const score = getSajuDailyScore(profile, dateStr);
+  const mission = getSajuMission(profile, dateStr);
+  const jdn = getTodayJdn(dateStr);
+  const ts = (jdn+49)%10, tb = (jdn+49)%12;
+  const cats = getSajuCats(profile, dateStr);
+  const summary = score>=90?"최고의 날! 🌟":score>=80?"에너지 넘침 ✨":score>=70?"순항 중 💫":"재충전 필요 🌙";
+  return (
+    <motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}} exit={{opacity:0,y:40}}
+      className="fixed inset-0 z-[300] flex items-end bg-black/60" onClick={onClose}>
+      <motion.div onClick={e=>e.stopPropagation()} className="bg-white w-full rounded-t-[32px] p-6 max-h-[85vh] overflow-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-black text-[#1C3A33]">{dateStr} ({STEMS[ts]}{BRANCHES[tb]}일)</h3>
+          <button onClick={onClose} className="text-gray-400 text-3xl leading-none">×</button>
+        </div>
+        <div className="text-center py-3 mb-4 rounded-2xl bg-gray-50">
+          <div className="text-5xl font-black text-[#1C3A33]">{score}점</div>
+          <div className="text-sm text-gray-500 mt-1">{summary}</div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {[["연애운","love","💖","#e91e63"],["직업운","career","📈","#1976d2"],["건강운","health","🌿","#388e3c"],["재물운","money","💰","#f57f17"]].map(([lb,k,ic,cl])=>(
+            <div key={k} className="rounded-2xl p-3 text-center" style={{background:`${cl}10`,border:`1px solid ${cl}25`}}>
+              <div className="text-xl mb-1">{ic}</div>
+              <div className="text-xs font-bold mb-1" style={{color:cl}}>{lb}</div>
+              <div className="text-xl font-black" style={{color:cl}}>{cats[k]}점</div>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-2xl bg-emerald-50 p-4 text-center mb-5">
+          <p className="text-emerald-700 text-xs font-black mb-1">✦ 행운 미션</p>
+          <p className="text-gray-700 text-sm">{mission}</p>
+        </div>
+        <button onClick={onClose} className="w-full py-4 rounded-3xl font-black text-white text-lg" style={{background:"linear-gradient(135deg,#1C3A33,#2d5a4a)"}}>닫기</button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function MonthlyFortune({profile, char}) {
+  const td = new Date(), year = td.getFullYear(), month = td.getMonth()+1;
+  const daysInMonth = maxDays(year, month);
+  const firstDay = new Date(year, month-1, 1).getDay();
+  const todayDate = td.getDate();
+  const [sel, setSel] = useState(null);
+  const cal = useMemo(() => getSajuCalendar(profile, year, month), [profile.charIdx, profile.saju?.dStem, year, month]);
+  return (
+    <>
+      <div className="bg-white rounded-[30px] p-5 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
+        <div className="flex justify-between items-center mb-3">
+          <div className="font-bold text-[#1C3A33] flex items-center gap-1.5">
+            <Calendar size={16}/> {month}월 캘린더 (사주 기반)
+          </div>
+          <div className="flex gap-2 text-[10px] text-gray-400">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"/>길일</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-300 inline-block"/>흉일</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray-400 mb-1.5">
+          {["일","월","화","수","목","금","토"].map(d=><div key={d}>{d}</div>)}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} className="h-10"/>)}
+          {Array.from({length:daysInMonth}, (_,i) => {
+            const d=i+1, isT=d===todayDate, isG=cal.good.has(d), isB=cal.bad.has(d);
+            const bg = isT?`${char.color}22`:isG?"#f0fdf4":isB?"#fef2f2":"#fafafa";
+            const border = isT?`2px solid ${char.color}`:isG?"1px solid #86efac":isB?"1px solid #fca5a5":"1.5px solid #f0f0f0";
+            const color = isT?"#1C3A33":isG?"#166534":isB?"#991b1b":"#555";
+            return (
+              <motion.button key={i} whileTap={{scale:.88}} onClick={()=>setSel(d)}
+                className="h-10 rounded-2xl flex items-center justify-center text-[11px] font-bold relative"
+                style={{backgroundColor:bg, color, border}}>
+                {d}
+                {isG && <span className="absolute top-0.5 right-0.5 text-[8px]">✨</span>}
+                {isB && <span className="absolute top-0.5 right-0.5 text-[8px]">⚠</span>}
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+      <AnimatePresence>
+        {sel && <DailyDetailModal profile={profile} dateStr={`${year}-${month}-${sel}`} onClose={()=>setSel(null)}/>}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function LuckyItems({char}) {
+  const items = [
+    {icon:"🎨",label:"행운 색",value: char.lucky.colors.join(", ")},
+    {icon:"🔢",label:"행운 숫자",value: char.lucky.numbers.join(", ")},
+    {icon:"🧭",label:"행운 방향",value: char.lucky.direction},
+    {icon:"🍽️",label:"행운 음식",value: char.lucky.food},
+    {icon:"⏰",label:"행운 시간",value: char.lucky.time},
+    {icon:"✨",label:"행운 아이템",value: char.lucky.item},
+  ];
+  return (
+    <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.35}}
+      className="bg-white rounded-[30px] p-6 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
+      <div className="flex items-center gap-2 mb-4">
+        <Star size={17} color="#c0550a"/>
+        <span className="font-bold text-[#1C3A33] text-[15px]">오늘의 행운 아이템</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {items.map(x => (
+          <div key={x.label} className="rounded-2xl p-3.5" style={{background:`${char.color}0a`,border:`1px solid ${char.color}18`}}>
+            <div className="text-xl mb-1 leading-none">{x.icon}</div>
+            <div className="text-[10px] font-bold mb-0.5" style={{color:`${char.color}99`}}>{x.label}</div>
+            <div className="text-[12px] font-semibold text-gray-700">{x.value}</div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// HomeScreen (수정된 부분 적용)
 function HomeScreen({profiles, activeId, setActiveId, onAdd, streak}) {
-  const p    = profiles.find(x=>x.id===activeId) ?? profiles[0] ?? null;
+  const p = profiles.find(x=>x.id===activeId) ?? profiles[0] ?? null;
   const char = p ? (CHAR_DATA[p.charIdx ?? 0] ?? CHAR_DATA[0]) : null;
   const [tab, setTab] = useState("daily");
   return (
@@ -636,7 +991,7 @@ function HomeScreen({profiles, activeId, setActiveId, onAdd, streak}) {
           </motion.div>
           <div className="grid grid-cols-2 gap-3">
             {[{title:"대운 흐름",color:"#BF6100",Icon:Award,text:char.luckTrend},
-              {title:"주의할 점",color:"#C62828",Icon:Zap,  text:char.caution}].map((x,i) => (
+              {title:"주의할 점",color:"#C62828",Icon:Zap,text:char.caution}].map((x,i) => (
               <motion.div key={x.title} initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:.32+i*.06}}
                 className="bg-white rounded-[22px] p-4 shadow-sm" style={{border:"1.5px solid #f0f0f0"}}>
                 <div className="font-bold text-xs mb-2 flex items-center gap-1.5" style={{color:x.color}}>
@@ -652,35 +1007,28 @@ function HomeScreen({profiles, activeId, setActiveId, onAdd, streak}) {
         <motion.div initial={{scale:.95,opacity:0}} animate={{scale:1,opacity:1}} onClick={onAdd}
           className="text-center py-20 bg-white rounded-[40px] cursor-pointer" style={{border:"2.5px dashed #e5e5e5"}}>
           <div className="text-7xl mb-4">🥚</div>
-          <p className="font-bold text-gray-400 text-lg">내 아우라를 찾아보세요</p>
-          <p className="text-sm text-gray-300 mt-1">생년월일을 입력하면 120가지 동물 중 나만의 동물이 탄생해요</p>
-          <div className="mt-6 inline-flex items-center gap-2 bg-[#1C3A33] text-white px-5 py-2.5 rounded-full font-bold text-sm">
-            <Plus size={14}/> 시작하기
-          </div>
+          <p className="font-black text-gray-800 text-xl">내 아우라를 찾아보세요</p>
         </motion.div>
       )}
     </motion.div>
   );
 }
 
-// ════════════════════════════════════════════════════════
-//  운세 전용 화면
-// ════════════════════════════════════════════════════════
+// FortuneScreen
 function FortuneScreen({profiles, activeId, setActiveId}) {
-  const p    = profiles.find(x=>x.id===activeId) ?? profiles[0] ?? null;
+  const p = profiles.find(x=>x.id===activeId) ?? profiles[0] ?? null;
   const char = p ? (CHAR_DATA[p.charIdx??0] ?? CHAR_DATA[0]) : null;
   const [tab, setTab] = useState("radar");
-  const today  = todayStr();
-  const idiom  = p ? getSajuIdiom(p, today) : IDIOMS[0];
-  const bd     = p ? getNextBirthday(+p.m, +p.d) : null;
+  const today = todayStr();
+  const idiom = p ? getSajuIdiom(p, today) : IDIOMS[0];
+  const bd = p ? getNextBirthday(+p.m, +p.d) : null;
   const nameFortune = useMemo(() => {
     if (!p?.name) return null;
     return getNameFortune(p.name.trim().split(""), p.hanjaSelections ?? {});
   }, [p]);
 
   if (!p || !char) return (
-    <motion.div key="fortune" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-      className="p-5 text-center py-24 text-gray-300">
+    <motion.div key="fortune" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="p-5 text-center py-24 text-gray-300">
       <Star size={48} className="mx-auto mb-4 opacity-30"/>
       <p className="font-bold">프로필을 먼저 등록해주세요</p>
     </motion.div>
@@ -728,14 +1076,12 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
                 ))}
               </div>
             </div>
-            {/* 사자성어 */}
             <div className="rounded-[24px] p-5" style={{background:char.bg,border:`1.5px solid ${char.color}20`}}>
               <div className="flex items-center gap-2 mb-3"><span>📜</span><span className="font-bold text-[13px] text-gray-500">오늘의 사자성어 (일주 기반)</span></div>
               <div className="text-center mb-2"><span className="font-black text-3xl tracking-[.2em]" style={{color:char.color}}>{idiom.text}</span></div>
               <div className="text-center text-xs text-gray-400 mb-2">({idiom.reading})</div>
               <p className="text-[13px] text-gray-600 leading-relaxed text-center">{idiom.meaning}</p>
             </div>
-            {/* D-day */}
             {bd && (
               <div className="rounded-[24px] p-5 bg-white" style={{border:`1.5px solid ${char.color}20`}}>
                 <div className="flex items-center justify-between">
@@ -743,8 +1089,7 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
                     <Gift size={16} color={char.color}/>
                     <span className="font-bold text-[13px] text-gray-500">다음 생일까지</span>
                   </div>
-                  <motion.div animate={{scale:[1,1.1,1]}} transition={{repeat:Infinity,duration:2.5}}
-                    className="font-black text-2xl" style={{color:char.color}}>
+                  <motion.div animate={{scale:[1,1.1,1]}} transition={{repeat:Infinity,duration:2.5}} className="font-black text-2xl" style={{color:char.color}}>
                     {bd.isToday ? "🎂 오늘!" : `D-${bd.days}`}
                   </motion.div>
                 </div>
@@ -783,10 +1128,10 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
             {(() => {
               const saju = p.saju ?? calcSaju(+p.y, +p.m, +p.d, +(p.h ?? 12), +(p.mi ?? 0), p.timeUnknown);
               const pillars = [
-                {label:"年柱",stem:saju.yStem,  branch:saju.yBranch},
-                {label:"月柱",stem:saju.mStem,  branch:saju.mBranch},
-                {label:"日柱",stem:saju.dStem,  branch:saju.dBranch, hi:true},
-                {label:"時柱",stem:saju.hStem,  branch:saju.hBranch},
+                {label:"年柱",stem:saju.yStem, branch:saju.yBranch},
+                {label:"月柱",stem:saju.mStem, branch:saju.mBranch},
+                {label:"日柱",stem:saju.dStem, branch:saju.dBranch, hi:true},
+                {label:"時柱",stem:saju.hStem, branch:saju.hBranch},
               ];
               return (
                 <div className="bg-white rounded-[24px] p-5 shadow-sm" style={{border:`1.5px solid ${char.color}20`}}>
@@ -795,8 +1140,7 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
                   </div>
                   <div className="grid grid-cols-4 gap-2 text-center">
                     {pillars.map((pp,i) => (
-                      <div key={i} className="rounded-2xl py-3 px-1"
-                        style={{background:pp.hi?`${char.color}15`:"#fafafa",border:pp.hi?`2px solid ${char.color}40`:"1.5px solid #f0f0f0"}}>
+                      <div key={i} className="rounded-2xl py-3 px-1" style={{background:pp.hi?`${char.color}15`:"#fafafa",border:pp.hi?`2px solid ${char.color}40`:"1.5px solid #f0f0f0"}}>
                         <div className="text-[10px] text-gray-400 mb-1 font-bold">{pp.label}</div>
                         {pp.stem != null ? (
                           <>
@@ -825,8 +1169,7 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
                 <div className="flex justify-center gap-3 mb-4 flex-wrap">
                   {nameFortune.details.map((d,i) => (
                     <div key={i} className="text-center">
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl mb-1"
-                        style={{background:d.hanja?`${char.color}15`:"#f5f5f5"}}>
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl mb-1" style={{background:d.hanja?`${char.color}15`:"#f5f5f5"}}>
                         {d.hanja || d.syl}
                       </div>
                       <div className="text-[9px] text-gray-400">{d.hanja?`${d.strokes??"?"}획`:d.syl}</div>
@@ -874,9 +1217,7 @@ function FortuneScreen({profiles, activeId, setActiveId}) {
   );
 }
 
-// ════════════════════════════════════════════════════════
-//  AddScreen
-// ════════════════════════════════════════════════════════
+// AddScreen
 function AddScreen({onSave, onBack, editProfile}) {
   const init = editProfile ?? {};
   const [form, setForm] = useState({
@@ -965,9 +1306,7 @@ function AddScreen({onSave, onBack, editProfile}) {
   );
 }
 
-// ════════════════════════════════════════════════════════
-//  FriendsScreen
-// ════════════════════════════════════════════════════════
+// FriendsScreen
 function FriendsScreen({profiles, activeId, onSelect, onDelete, onEdit, onAdd, onImport}) {
   const [status, setStatus] = useState(null);
   const handleExport = () => {
@@ -999,8 +1338,7 @@ function FriendsScreen({profiles, activeId, onSelect, onDelete, onEdit, onAdd, o
           <AnimatePresence>
             {profiles.map(p => {
               const c=CHAR_DATA[p.charIdx??0]??CHAR_DATA[0], on=p.id===activeId;
-              const hanjaName = p.hanjaSelections && p.name
-                ? p.name.trim().split("").map((s,i)=>p.hanjaSelections[i]||s).join("") : null;
+              const hanjaName = p.hanjaSelections && p.name ? p.name.trim().split("").map((s,i)=>p.hanjaSelections[i]||s).join("") : null;
               return (
                 <motion.div key={p.id} layout initial={{opacity:0,x:-15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:20}}
                   className="flex items-center gap-3 bg-white p-4 rounded-[22px]"
@@ -1054,9 +1392,7 @@ function FriendsScreen({profiles, activeId, onSelect, onDelete, onEdit, onAdd, o
   );
 }
 
-// ════════════════════════════════════════════════════════
-//  MatchScreen
-// ════════════════════════════════════════════════════════
+// MatchScreen
 function MatchScreen({profiles}) {
   const [s1,setS1] = useState(profiles[0]?.id ?? null);
   const [s2,setS2] = useState(profiles[1]?.id ?? null);
@@ -1127,17 +1463,15 @@ function MatchScreen({profiles}) {
   );
 }
 
-// ════════════════════════════════════════════════════════
-//  메인 앱
-// ════════════════════════════════════════════════════════
+// 메인 앱
 const SK = "aurafriends_v8";
 
 export default function AuraFriends() {
-  const [view,        setView]        = useState("home");
-  const [profiles,    setProfiles]    = useState([]);
-  const [activeId,    setActiveId]    = useState(null);
-  const [packChar,    setPackChar]    = useState(null);
-  const [streak,      setStreak]      = useState(1);
+  const [view, setView] = useState("home");
+  const [profiles, setProfiles] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [packChar, setPackChar] = useState(null);
+  const [streak, setStreak] = useState(1);
   const [editProfile, setEditProfile] = useState(null);
 
   useEffect(() => { loadHanjaData(); }, []);
@@ -1148,7 +1482,7 @@ export default function AuraFriends() {
       const d = JSON.parse(raw);
       setProfiles(d.profiles ?? []);
       setActiveId(d.activeId ?? null);
-      const today=todayStr(), prev=d.lastVisit, ps=d.streak??1;
+      const today = todayStr(), prev = d.lastVisit, ps = d.streak??1;
       if (prev) {
         const diff = Math.round((new Date(today).getTime() - new Date(prev).getTime()) / 86400000);
         setStreak(diff===0 ? ps : diff===1 ? ps+1 : 1);
@@ -1178,14 +1512,14 @@ export default function AuraFriends() {
 
   const handleSelect = useCallback(id => { setActiveId(id); setView("home"); }, []);
   const handleImport = useCallback(ps => { setProfiles(ps); setActiveId(ps[0]?.id ?? null); }, []);
-  const handleEdit   = useCallback(p  => { setEditProfile(p); setView("add"); }, []);
+  const handleEdit = useCallback(p => { setEditProfile(p); setView("add"); }, []);
 
-  const lv  = getLevel(streak);
+  const lv = getLevel(streak);
   const NAV = [
-    {id:"home",   icon:"🏠", label:"홈"},
-    {id:"fortune",icon:"⭐", label:"운세"},
-    {id:"friends",icon:"👥", label:"친구"},
-    {id:"match",  icon:"💖", label:"궁합"},
+    {id:"home", icon:"🏠", label:"홈"},
+    {id:"fortune", icon:"⭐", label:"운세"},
+    {id:"friends", icon:"👥", label:"친구"},
+    {id:"match", icon:"💖", label:"궁합"},
   ];
 
   return (
@@ -1209,11 +1543,11 @@ export default function AuraFriends() {
       </header>
 
       <AnimatePresence mode="wait">
-        {view==="home"    && <HomeScreen    profiles={profiles} activeId={activeId} setActiveId={setActiveId} onAdd={()=>{setEditProfile(null);setView("add");}} streak={streak}/>}
-        {view==="add"     && <AddScreen     onSave={handleSave} onBack={()=>{setView("home");setEditProfile(null);}} editProfile={editProfile}/>}
-        {view==="fortune" && <FortuneScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId}/>}
-        {view==="friends" && <FriendsScreen profiles={profiles} activeId={activeId} onSelect={handleSelect} onDelete={handleDelete} onEdit={handleEdit} onAdd={()=>{setEditProfile(null);setView("add");}} onImport={handleImport}/>}
-        {view==="match"   && <MatchScreen   profiles={profiles}/>}
+        {view==="home" ? <HomeScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId} onAdd={()=>{setEditProfile(null);setView("add");}} streak={streak} />
+         : view==="add" ? <AddScreen onSave={handleSave} onBack={()=>{setView("home");setEditProfile(null);}} editProfile={editProfile} />
+         : view==="fortune" ? <FortuneScreen profiles={profiles} activeId={activeId} setActiveId={setActiveId} />
+         : view==="friends" ? <FriendsScreen profiles={profiles} activeId={activeId} onSelect={handleSelect} onDelete={handleDelete} onEdit={handleEdit} onAdd={()=>{setEditProfile(null);setView("add");}} onImport={handleImport} />
+         : <MatchScreen profiles={profiles} />}
       </AnimatePresence>
 
       {view!=="add" && (
